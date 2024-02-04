@@ -46,19 +46,11 @@
     }
   }
 
-
-.buttons {
+.buttonContainersWrapper {
     width: 300px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-.button {
-    width: 100px;
-    height: 50px;
-    cursor: pointer;
-    margin-top: 0.5rem;
 }
 
 .buttonContainer {
@@ -68,10 +60,83 @@
     justify-content: center;
 }
 
+.button {
+    width: 100px;
+    height: 50px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: 0.2s;
+    border-radius: 4px;
+    background: #fff;
+    outline: none;
+    border: none;
+    transition: 0.2s;
+}
+
+.button:hover {
+    filter: brightness(0.90);
+}
+
+.buttonText {
+    color: #000;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
 .loginButtonContainer {
-    right: 6px;
-    top: 6px;
+    right: 1rem;
+    top: 1rem;
     position: fixed;
     border-radius: 15px;
 }   
 
+.betsContainer {
+    top: 1rem;
+    position: fixed;
+    display: flex;
+}
+
+.betsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 6px solid #fff;
+    padding: 0.5rem;
+    width: 300px;
+    margin: 0 6px;
+}
+
+.myGains {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 6px solid #fff;
+    padding: 0.5rem;
+    width: 300px;
+    margin: 0 6px;
+}
+
+.betC1 {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.betC2 {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.myBets {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.betText {
+    text-align: center;
+}

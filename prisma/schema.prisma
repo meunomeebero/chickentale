@@ -16,17 +16,19 @@ model Users {
   email String @unique
   image String
   createdAt DateTime @default(now()) @map("created_at")
+  paymentClientId String? @unique
 
   @@map("users")
 }
 
 model Bets {
   id Int @id @default(autoincrement())
-  createdAt DateTime  @default(now()) @map("created_at")
-  finishAt  DateTime? @map("finish_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  finishAt   DateTime? @map("finish_at")
   isFinished Boolean  @map("is_finished")
-  winner    Int
+  winner     Int
 
+  @@unique([id, winner])
   @@map("bets")
 }
 
@@ -36,6 +38,7 @@ model UserBets {
   userId    Int @map("user_id")
   betId     Int @map("bet_id")
   value     Int
+  isWithdrawn  Boolean @default(false) @map("is_withdrawn")
 
   @@map("user_bets")
 }

@@ -1,45 +1,49 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { GoogleUser } from "../../_dtos";
 import { prisma } from "../../_prisma";
+import { getMe } from "../../_services";
+import { HTTPError, handleHTTPError } from "../../_error";
+import { stripe } from "@/utils/stripe";
+
+export const getUserByToken = async (token: string | undefined) => {
+  if (!token) {
+    throw new HTTPError({ message: "You must send a valid bearer token", code: 401 });
+  }
+
+  const user = await getMe(token);
+
+  let dbUser = await prisma.users.findFirst({
+    where: {
+      email: user.email,
+    }
+  });
+
+  if (!dbUser) {
+    const { id: paymentClientId } = await stripe.customers.create({
+      name: user.email,
+    });
+
+    dbUser = await prisma.users.create({
+        data: {
+          email: user.email,
+          image: user.picture,
+          name: user.name,
+          paymentClientId,
+        }
+    });
+  }
+
+  return dbUser;
+}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "You must send a valid bearer token" });
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    const dbUser = await getUserByToken(token);
+    return res.status(200).json(dbUser);
+  } catch(err) {
+    handleHTTPError(res, err);
   }
-
-  const data = await fetch(
-    'https://oauth2.googleapis.com/tokeninfo?id_token=' + token,
-  );
-
-  if (data.status !== 200) {
-    const message = await data.text();
-    return res.status(401).json({ message: "You must send a valid bearer token", error: message });
-  }
-
-  const json = await data.json();
-
-  const user = new GoogleUser(json);
-
-  let dbUser = await prisma.users.findFirst({
-    where: {
-        email: user.email,
-    }
-  });
-
-  if (!dbUser) {
-    dbUser = await prisma.users.create({
-        data: {
-            email: user.email,
-            image: user.picture,
-            name: user.name,
-        }
-    });
-  }
-
-  return res.status(200).json(dbUser);
 }
