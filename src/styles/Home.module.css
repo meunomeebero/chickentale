@@ -140,3 +140,10 @@
 .betText {
     text-align: center;
 }
+
+.smoke {
+    margin: auto;
+    width: 200px;
+    height: 200px;
+    animation: float 2s ease-in-out infinite;
+}

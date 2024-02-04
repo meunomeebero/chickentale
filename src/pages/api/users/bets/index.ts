@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../_prisma";
 import { getUserByToken } from "../login";
 import { HTTPError, handleHTTPError } from "../../_error";
+import { createPaymentLink } from "@/utils/stripe";
 
 type CreateBetParams = { token?: string, value: number, times: number };
 
@@ -68,9 +69,14 @@ export const createBet = async ({ token, value, times }: CreateBetParams) => {
         });
     });
 
-    const res = await Promise.all(promises);
+    const paymentLink = await createPaymentLink(
+        user, 
+        JSON.stringify({ value, times: 1, token })
+    );
 
-    return res;
+    await Promise.all(promises);
+
+    return { paymentLink };
 }
 
 export default async function handler(

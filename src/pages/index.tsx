@@ -10,6 +10,7 @@ import { HandleLoginReturn, Login } from "@/components/login";
 import axios from "axios";
 import { MyBets } from "@/components/my-bets";
 import { createPaymentLink } from "@/utils/stripe";
+import { useQuery } from "react-query";
 
 type HomeProps = {
   data: {
@@ -18,38 +19,65 @@ type HomeProps = {
   }
 };
 
-export default function Home({ data: { bet, userBets }}: HomeProps) {
+type UserBetsResponse = {
+  myBets: UserBets[];
+  myMoney: number;
+};
+
+type BetsResponse = {
+  bet: Bets;
+  userBets: UserBets[];
+};
+
+export default function Home({ data: serverSideData }: HomeProps) {
   const [user, setUser] = useState<Users | undefined>();
   const [token, setToken] = useState<string | undefined>();
-  const [myBets, setMyBets] = useState<UserBets[] | undefined>();
-  const [myMoney, setMyMoney] = useState(0);
+
+  const { data: bets = serverSideData } = useQuery('bets', async () => {
+    const { data } = await axios.get<BetsResponse>("/api/bets");
+    return data;
+  });
+
+  const { refetch: refetchMyBets, data: myBetsRes} = useQuery('myBets', async () => {
+    if (token) {
+      const { data: { myBets, myMoney }} = await axios.get<UserBetsResponse>('/api/users/bets', {
+        headers: {
+          Authorization: "Bearer " + token,
+        }
+      });
+
+      console.log({ myBets, myMoney });
+  
+     return { myBets, myMoney };
+    }
+  });
 
   const timeToCloseBet = useMemo(() => {
-    return format(new Date(bet.finishAt as any), "HH:mm")
-  }, [bet]);
+    return format(new Date(bets.bet.finishAt as any), "HH:mm")
+  }, [bets.bet]);
 
   const [c1, c2] = useMemo(() => {
     let chicken1 = 0 
     let chicken2 = 0
-    userBets.forEach(ub => {
+    bets.userBets.forEach(ub => {
       if (ub.value === 1) return chicken1++
       chicken2++
     })
     return [chicken1, chicken2]
-  }, [userBets]);
+  }, [bets]);
 
   const [myBetsC1, myBetsC2] = useMemo(() => {
     let chicken1 = 0 
     let chicken2 = 0
-    myBets?.forEach(ub => {
+    myBetsRes?.myBets?.forEach(ub => {
       if (ub.value === 1) return chicken1++
       chicken2++
     })
     return [chicken1, chicken2]
-  }, [myBets]);
+  }, [myBetsRes]);
 
   const handleCreateBet = useCallback(async (chicken: number) => {
-    if (bet.isFinished) {
+    if (bets.bet.isFinished) {
       alert("A rinha ja acabou, aguarde a próxima!");
       return;
     }
@@ -64,24 +92,23 @@ export default function Home({ data: { bet, userBets }}: HomeProps) {
       return;
     }
 
-    const paymentLink = await createPaymentLink(user, JSON.stringify({ value: chicken, times: 1, token }));
+    const { data: { paymentLink }} = await axios.post('/api/users/bets', {
+      times: 1, 
+      value: chicken,
+    }, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });  
 
     window.location.replace(paymentLink as string);
-  }, [token, bet, user]);
+  }, [token, bets, user]);
 
   const handleLogin = useCallback(async ({ token, user }: HandleLoginReturn) => {
     setUser(user);
     setToken(token);
-
-    const { data: { myBets: myBetsData, myMoney } } = await axios.get('/api/users/bets', {
-      headers: {
-        Authorization: "Bearer " + token,
-      }
-    });
-
-    setMyBets(myBetsData);
-    setMyMoney(myMoney);
-  }, []);
+    refetchMyBets();
+  }, [refetchMyBets]);
 
   return (
     <>
@@ -94,16 +121,15 @@ export default function Home({ data: { bet, userBets }}: HomeProps) {
       <main>
         <div className={styles.container}>
           <Login handleLogin={handleLogin} user={user}/>
-          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={myMoney}/>}
+          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={myBetsRes?.myMoney ?? 0}/>}
           <h1>ChickenTale</h1>
           <strong>
-            { bet.isFinished ? (
-              "Rinha finalizada. chicken " + bet.winner + " venceu!"
+            { bets.bet.isFinished ? (
+              "Rinha finalizada. chicken " + bets.bet.winner + " venceu!"
             ) : "Próxima briga às: " + timeToCloseBet }
           </strong>
           <div className={styles.cage}>
-            <img src="/galo-1.png" alt="galo 1" className={styles.chickenOne}/>
-            <img src="/galo-2.png" alt="galo 1" className={styles.chickenTwo}/>
+            <img src="/smoke.gif" alt="fumazinha" className={styles.smoke}/>
           </div>
           <div className={styles.buttonContainersWrapper}>
             <div className={styles.buttonContainer}>
@@ -130,10 +156,12 @@ export default function Home({ data: { bet, userBets }}: HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const data = await getBet();
+  const res = await getBet();
+  const data = json(res);
+
   return {
     props: {
-      data: json(data),
+      data,
     }
   }
 };

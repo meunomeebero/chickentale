@@ -6,7 +6,7 @@ export const getBet = async  () => {
   const bet = await prisma.bets.findFirst({
     orderBy: {
       createdAt: "desc",
-    }
+    },
   });
 
   if (!bet) {

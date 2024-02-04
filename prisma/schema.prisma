@@ -23,10 +23,11 @@ model Users {
 
 model Bets {
   id Int @id @default(autoincrement())
-  createdAt  DateTime  @default(now()) @map("created_at")
-  finishAt   DateTime? @map("finish_at")
-  isFinished Boolean  @map("is_finished")
-  winner     Int
+  createdAt   DateTime  @default(now()) @map("created_at")
+  finishAt    DateTime? @map("finish_at")
+  isFinished  Boolean  @map("is_finished")
+  isFighting  Boolean?  @map("is_fighting")
+  winner      Int
 
   @@unique([id, winner])
   @@map("bets")
