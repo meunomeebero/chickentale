@@ -58,15 +58,20 @@
     width: 100px;
     height: 50px;
     cursor: pointer;
+    margin-top: 0.5rem;
 }
 
-.chickenInfoContainer {
-    width: 300px;
+.buttonContainer {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 }
 
-.chickenInfo {
-    margin: 0.5rem 1rem;
-}
+.loginButtonContainer {
+    right: 6px;
+    top: 6px;
+    position: fixed;
+    border-radius: 15px;
+}   
+

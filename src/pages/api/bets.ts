@@ -1,18 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "./_prisma";
 
-export default async function handler(
-  _: NextApiRequest,
-  res: NextApiResponse,
-) {
-  const bet = await prisma.bets.findFirst({
-    where: {
-      isFinished: false,
-    }
-  })
+export const getBet = async  () => {
+  const bet = await prisma.bets.findFirst();
 
   if (!bet) {
-    return res.status(400).json({ message: "Bet not found" });
+    return {};
   }
 
   const userBets = await prisma.userBets.findMany({
@@ -21,5 +14,14 @@ export default async function handler(
     }
   })
 
-  return res.status(200).json({ bet, userBets });
+  return { bet, userBets };
+}
+
+export default async function handler(
+  _: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const data = getBet();
+
+  return res.status(200).json(data);
 }
