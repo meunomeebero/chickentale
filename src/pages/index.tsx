@@ -4,7 +4,7 @@ import { GetServerSideProps } from "next";
 import { getBet } from "./api/bets";
 import { json } from "@/utils/json";
 import { useCallback, useMemo, useState } from "react";
-import { Bets, UserBets, Users } from "@prisma/client";
+import { BetState, Bets, UserBets, Users } from "@prisma/client";
 import { format } from "date-fns";
 import { HandleLoginReturn, Login } from "@/components/login";
 import axios from "axios";
@@ -77,7 +77,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
   }, [myBetsRes]);
 
   const handleCreateBet = useCallback(async (chicken: number) => {
-    if (bets.bet.isFinished) {
+    if (bets.bet.state === BetState.FINISHED) {
       alert("A rinha ja acabou, aguarde a próxima!");
       return;
     }
@@ -124,12 +124,21 @@ export default function Home({ data: serverSideData }: HomeProps) {
           {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={myBetsRes?.myMoney ?? 0}/>}
           <h1>ChickenTale</h1>
           <strong>
-            { bets.bet.isFinished ? (
+            { bets.bet.state === BetState.FINISHED ? (
               "Rinha finalizada. chicken " + bets.bet.winner + " venceu!"
-            ) : "Próxima briga às: " + timeToCloseBet }
+            ) : bets.bet.state === BetState.FIGHTING ? "As galinhas estão brigando!" : "Próxima briga às: " + timeToCloseBet }
           </strong>
           <div className={styles.cage}>
-            <img src="/smoke.gif" alt="fumazinha" className={styles.smoke}/>
+              { bets.bet.state === BetState.FIGHTING ? (
+                <img src="/smoke.gif" alt="smoke" className={styles.smoke}/>
+              ): bets.bet.state === BetState.WAITING ? (
+                <>
+                  <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOne}/>
+                  <img src="/galo-2.png" alt="chicken 2" className={styles.chickenTwo}/>
+                </>
+              ):(
+                <img src={`/galo-${bets.bet.winner}.png`} alt="smoke" className={styles.smoke}/>
+              )}
           </div>
           <div className={styles.buttonContainersWrapper}>
             <div className={styles.buttonContainer}>

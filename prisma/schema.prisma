@@ -44,6 +44,7 @@ model UserBets {
   betId     Int @map("bet_id")
   value     Int
   isWithdrawn  Boolean @default(false) @map("is_withdrawn")
+  isPaymentConfirmed  Boolean @default(false) @map("is_payment_confirmed")
 
   @@map("user_bets")
 }

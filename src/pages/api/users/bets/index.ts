@@ -3,6 +3,7 @@ import { prisma } from "../../_prisma";
 import { getUserByToken } from "../login";
 import { HTTPError, handleHTTPError } from "../../_error";
 import { createPaymentLink } from "@/utils/stripe";
+import { BetState } from "@prisma/client";
 
 type CreateBetParams = { token?: string, value: number, times: number };
 
@@ -11,7 +12,9 @@ export const getBet = async (token: string | undefined) => {
 
     const bet = await prisma.bets.findFirst({
         where: {
-            isFinished: false,
+            NOT: {
+                state: BetState.FINISHED,
+            }
         },
     });
 
@@ -34,7 +37,7 @@ export const getBet = async (token: string | undefined) => {
             prisma.bets.findFirst({
                 where: {
                     id: mb.betId,
-                    isFinished: true,
+                    state: BetState.FINISHED,
                     winner: mb.value,
                 }
             })
@@ -51,7 +54,9 @@ export const createBet = async ({ token, value, times }: CreateBetParams) => {
 
     const bet = await prisma.bets.findFirst({
         where: {
-            isFinished: false,
+           NOT: {
+            state: BetState.FINISHED,
+           }
         },
     });
 
