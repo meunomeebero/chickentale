@@ -12,6 +12,7 @@ export class HTTPError extends Error {
 }
 
 export const handleHTTPError = (res: NextApiResponse, error: any) => {
+    console.log(error);
     if (error instanceof HTTPError) {
         return res.status(error.statusCode).json({
             message: error.message,

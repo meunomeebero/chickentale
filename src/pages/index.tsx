@@ -9,7 +9,6 @@ import { format } from "date-fns";
 import { HandleLoginReturn, Login } from "@/components/login";
 import axios from "axios";
 import { MyBets } from "@/components/my-bets";
-import { createPaymentLink } from "@/utils/stripe";
 import { useQuery } from "react-query";
 
 type HomeProps = {

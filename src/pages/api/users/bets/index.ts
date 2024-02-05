@@ -22,6 +22,7 @@ export const getBet = async (token: string | undefined) => {
         where: {
             betId: bet?.id ?? -1,
             userId: user.id,
+            isPaymentConfirmed: true,
         }
     });
 
@@ -29,6 +30,7 @@ export const getBet = async (token: string | undefined) => {
         where: {
             userId: user.id,
             isWithdrawn: false,
+            isPaymentConfirmed: true,
         }
     });
 

@@ -9,6 +9,9 @@ const stripe = new Stripe(
 export const createPaymentLink = async (user: Users, data: string) => {
     const paymentLink = await stripe.checkout.sessions.create({
         customer: user.paymentClientId as string,
+        metadata: {
+            email: user.email,
+        },
         line_items: [
             {
                 price: process.env.NEXT_PUBLIC_STRIPE_PRODUCT_ID,
