@@ -10,13 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BetState {
+  FINISHED
+  FIGHTING
+  WAITING
+}
 model Users {
   id Int @id @default(autoincrement())
   name String
   email String @unique
   image String
   createdAt DateTime @default(now()) @map("created_at")
-  paymentClientId String? @unique
+  paymentClientId String? @unique @map("payment_client_id")
 
   @@map("users")
 }
@@ -25,8 +30,7 @@ model Bets {
   id Int @id @default(autoincrement())
   createdAt   DateTime  @default(now()) @map("created_at")
   finishAt    DateTime? @map("finish_at")
-  isFinished  Boolean  @map("is_finished")
-  isFighting  Boolean?  @map("is_fighting")
+  state       BetState @default(WAITING)
   winner      Int
 
   @@unique([id, winner])
