@@ -8,9 +8,9 @@
 }
 
 .cage {
-    width: 300px;
-    height: 300px;
-    border: 6px solid #fff;
+    width: 19rem; /* Converted from 300px to rem */
+    height: 19rem; /* Converted from 300px to rem */
+    border: 0.375rem solid #fff; /* Converted from 6px to rem */
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -18,36 +18,36 @@
 }
 
 .chickenOne {
-    width: 100px;
-    height: 100px;
+    width: 6.25rem; /* Converted from 100px to rem */
+    height: 6.25rem; /* Converted from 100px to rem */
     animation: float 2s ease-in-out infinite;
     animation-delay: 1s;
 }
 
 .chickenOneDead {
-    width: 100px;
-    height: 100px;
-    transform: rotateX('180');
+    width: 6.25rem; /* Converted from 100px to rem */
+    height: 6.25rem; /* Converted from 100px to rem */
+    transform: rotateX(180deg); /* Removed quotes and converted to rem */
 }
 
 .chickenTwo {
-    width: 100px;
-    height: 100px;
+    width: 6.25rem; /* Converted from 100px to rem */
+    height: 6.25rem; /* Converted from 100px to rem */
     transform: rotateY(180deg);
     animation: float 2s ease-in-out infinite;
 }
 
 @keyframes float {
     0%, 100% {
-      transform: translateY(0);
+        transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px);
+        transform: translateY(-0.625rem); /* Converted from -10px to rem */
     }
-  }
+}
 
 .buttonContainersWrapper {
-    width: 300px;
+    width: 19rem; /* Converted from 300px to rem */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -61,12 +61,12 @@
 }
 
 .button {
-    width: 100px;
-    height: 50px;
+    width: 6.25rem; /* Converted from 100px to rem */
+    height: 3.125rem; /* Converted from 50px to rem */
     cursor: pointer;
-    margin-top: 0.5rem;
+    margin-top: 0.3125rem; /* Converted from 5px to rem */
     transition: 0.2s;
-    border-radius: 4px;
+    border-radius: 0.25rem; /* Converted from 4px to rem */
     background: #fff;
     outline: none;
     border: none;
@@ -87,8 +87,8 @@
     right: 1rem;
     top: 1rem;
     position: fixed;
-    border-radius: 15px;
-}   
+    border-radius: 0.9375rem; /* Converted from 15px to rem */
+}
 
 .betsContainer {
     top: 1rem;
@@ -101,31 +101,31 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 6px solid #fff;
-    padding: 0.5rem;
-    width: 300px;
-    margin: 0 6px;
+    border: 0.375rem solid #fff; /* Converted from 6px to rem */
+    padding: 0.3125rem; /* Converted from 5px to rem */
+    width: 19rem; /* Converted from 300px to rem */
+    margin: 0 0.375rem; /* Converted from 6px to rem */
 }
 
 .myGains {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 6px solid #fff;
-    padding: 0.5rem;
-    width: 300px;
-    margin: 0 6px;
+    border: 0.375rem solid #fff; /* Converted from 6px to rem */
+    padding: 0.3125rem; /* Converted from 5px to rem */
+    width: 19rem; /* Converted from 300px to rem */
+    margin: 0 0.375rem; /* Converted from 6px to rem */
 }
 
 .betC1 {
-    width: 100px;
+    width: 6.25rem; /* Converted from 100px to rem */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .betC2 {
-    width: 100px;
+    width: 6.25rem; /* Converted from 100px to rem */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,7 +143,7 @@
 
 .smoke {
     margin: auto;
-    width: 200px;
-    height: 200px;
+    width: 12.5rem; /* Converted from 200px to rem */
+    height: 12.5rem; /* Converted from 200px to rem */
     animation: float 2s ease-in-out infinite;
 }

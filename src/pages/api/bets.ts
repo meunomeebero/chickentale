@@ -15,7 +15,7 @@ export const getBet = async  () => {
 
   const userBets = await prisma.userBets.findMany({
     where: {
-      betId: bet?.id,
+      betId: bet.id,
     }
   });
 

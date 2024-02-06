@@ -51,7 +51,7 @@ export const getBet = async (token: string | undefined) => {
     return { myBets: myCurrentBets, myMoney };
 }
 
-export const createBet = async ({ token, value, times }: CreateBetParams) => {
+export const createBet = async ({ token, value }: CreateBetParams) => {
     const user = await getUserByToken(token);
 
     const bet = await prisma.bets.findFirst({
@@ -66,22 +66,18 @@ export const createBet = async ({ token, value, times }: CreateBetParams) => {
         throw new HTTPError({ message: "bet not found", code: 404 });
     }
 
-    const promises = Array(times).fill(0).map(() => {
-        return prisma.userBets.create({
-            data: {
-                betId: bet.id,
-                userId: user.id,
-                value,
-            },
-        });
+    await prisma.userBets.create({
+        data: {
+            betId: bet.id,
+            userId: user.id,
+            value,
+        },
     });
 
     const paymentLink = await createPaymentLink(
         user, 
         JSON.stringify({ value, times: 1, token })
     );
-
-    await Promise.all(promises);
 
     return { paymentLink };
 }

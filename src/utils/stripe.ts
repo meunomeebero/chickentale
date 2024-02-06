@@ -2,7 +2,7 @@ import { Users } from '@prisma/client';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(
-    process.env.NEXT_PUBLIC_STRIPE_SK as string,
+    process.env.STRIPE_SK as string,
     { apiVersion: '2023-10-16' }
     );
 
@@ -14,7 +14,7 @@ export const createPaymentLink = async (user: Users, data: string) => {
         },
         line_items: [
             {
-                price: process.env.NEXT_PUBLIC_STRIPE_PRODUCT_ID,
+                price: process.env.STRIPE_PRODUCT_ID,
                 quantity: 1,
             },
         ],
