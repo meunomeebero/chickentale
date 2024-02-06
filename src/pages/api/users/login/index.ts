@@ -5,9 +5,7 @@ import { HTTPError, handleHTTPError } from "../../_error";
 import { stripe } from "@/utils/stripe";
 
 export const getUserByToken = async (token: string | undefined) => {
-  if (!token) {
-    throw new HTTPError({ message: "You must send a valid bearer token", code: 401 });
-  }
+  if (!token) throw new HTTPError({ message: "You must send a valid bearer token", code: 401 });
 
   const user = await getMe(token);
 
@@ -23,12 +21,12 @@ export const getUserByToken = async (token: string | undefined) => {
     });
 
     dbUser = await prisma.users.create({
-        data: {
-          email: user.email,
-          image: user.picture,
-          name: user.name,
-          paymentClientId,
-        }
+      data: {
+        email: user.email,
+        image: user.picture,
+        name: user.name,
+        paymentClientId,
+      }
     });
   }
 

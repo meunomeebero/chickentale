@@ -22,7 +22,7 @@ export const createPaymentLink = async (user: Users, data: string) => {
             'card',
         ],
         mode: 'payment',
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}?eventData=${data}`,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}?status=processing`,
     });
     
     return paymentLink.url;
