@@ -39,15 +39,15 @@ export default function Home({ data: serverSideData }: HomeProps) {
 
   const { refetch: refetchMyBets, data: myBetsRes} = useQuery('myBets', async () => {
     if (token) {
-      const { data: { myBets, myMoney }} = await axios.get<UserBetsResponse>('/api/users/bets', {
+      const { data: { myBets }} = await axios.get<UserBetsResponse>('/api/users/bets', {
         headers: {
           Authorization: "Bearer " + token,
         }
       });
 
-      console.log({ myBets, myMoney });
-  
-     return { myBets, myMoney };
+      console.log({ myBets });
+
+     return { myBets };
     }
   });
 
@@ -56,7 +56,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
   }, [bets.bet]);
 
   const [c1, c2] = useMemo(() => {
-    let chicken1 = 0 
+    let chicken1 = 0
     let chicken2 = 0
     bets.userBets.forEach(ub => {
       if (ub.value === 1) return chicken1++
@@ -66,7 +66,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
   }, [bets]);
 
   const [myBetsC1, myBetsC2] = useMemo(() => {
-    let chicken1 = 0 
+    let chicken1 = 0
     let chicken2 = 0
     myBetsRes?.myBets?.forEach(ub => {
       if (ub.value === 1) return chicken1++
@@ -92,13 +92,13 @@ export default function Home({ data: serverSideData }: HomeProps) {
     }
 
     const { data: { paymentLink }} = await axios.post('/api/users/bets', {
-      times: 1, 
+      times: 1,
       value: chicken,
     }, {
       headers: {
         Authorization: "Bearer " + token,
       },
-    });  
+    });
 
     window.location.replace(paymentLink as string);
   }, [token, bets, user]);
@@ -120,7 +120,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
       <main>
         <div className={styles.container}>
           <Login handleLogin={handleLogin} user={user}/>
-          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={myBetsRes?.myMoney ?? 0}/>}
+          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={?? 0}/>}
           <h1>ChickenTale</h1>
           <strong>
             { bets.bet.state === BetState.FINISHED ? (

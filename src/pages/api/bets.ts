@@ -3,21 +3,20 @@ import { prisma } from "./_prisma";
 import { HTTPError, handleHTTPError } from "./_error";
 
 export const getBet = async  () => {
-  const bet = await prisma.bets.findFirst({
+  const currentBet = await prisma.bets.findFirst({
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+        bettors: true,
+    }
   });
 
-  if (!bet) {
+  if (!currentBet) {
     throw new HTTPError({ message: "no bet found", code: 404 });
   }
 
-  const userBets = await prisma.userBets.findMany({
-    where: {
-      betId: bet.id,
-    }
-  });
+  const { bettors: userBets, ...bet } = currentBet;
 
   return { bet, userBets };
 }

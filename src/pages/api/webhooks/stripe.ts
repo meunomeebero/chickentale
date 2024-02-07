@@ -27,7 +27,7 @@ const relevantEvents = new Set([
   'payment_intent.succeeded',
 ]);
 
-const endpointSecret = "whsec_635e87d7bfa8f5deeee40be6a7de6cc5bd0b549716fa1738e8f4898e460ad4d0";
+const endpointSecret = process.env.STRIPE_WH_SEC as string;
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
   const buf = await buffer(request);
@@ -49,7 +49,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
         case 'payment_intent.succeeded':
           const checkoutSession = event.data.object;
           const customer = checkoutSession.customer?.toString();
-          
+
           if (typeof customer === "string") {
             const user = await prisma.users.findFirst({
               where: {
@@ -73,7 +73,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
               where: {
                 userId: user.id,
                 betId: bet.id,
-                isPaymentConfirmed: false, 
+                isPaymentConfirmed: false,
               },
             });
 

@@ -26,29 +26,7 @@ export const getBet = async (token: string | undefined) => {
         }
     });
 
-    const allMyBets = await prisma.userBets.findMany({
-        where: {
-            userId: user.id,
-            isWithdrawn: false,
-            isPaymentConfirmed: true,
-        }
-    });
-
-    const myWinningBets = await prisma.$transaction(
-        allMyBets.map(mb => 
-            prisma.bets.findFirst({
-                where: {
-                    id: mb.betId,
-                    state: BetState.FINISHED,
-                    winner: mb.value,
-                }
-            })
-        ),
-    );
-
-    const myMoney = myWinningBets.filter(Boolean).length
-
-    return { myBets: myCurrentBets, myMoney };
+    return { myBets: myCurrentBets };
 }
 
 export const createBet = async ({ token, value }: CreateBetParams) => {
@@ -75,7 +53,7 @@ export const createBet = async ({ token, value }: CreateBetParams) => {
     });
 
     const paymentLink = await createPaymentLink(
-        user, 
+        user,
         JSON.stringify({ value, times: 1, token })
     );
 
@@ -87,8 +65,8 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   try {
-    const token = req.headers.authorization?.split(' ')[1]; 
-    
+    const token = req.headers.authorization?.split(' ')[1];
+
     switch (req.method) {
         case "GET":
             const data = await getBet(token)

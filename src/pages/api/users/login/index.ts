@@ -4,6 +4,9 @@ import { getMe } from "../../_services";
 import { HTTPError, handleHTTPError } from "../../_error";
 import { stripe } from "@/utils/stripe";
 
+/**
+ * It throws a 404 httpError if user is not found!
+ */
 export const getUserByToken = async (token: string | undefined) => {
   if (!token) throw new HTTPError({ message: "You must send a valid bearer token", code: 401 });
 
