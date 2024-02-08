@@ -16,9 +16,9 @@ export const getBet = async  () => {
     throw new HTTPError({ message: "no bet found", code: 404 });
   }
 
-  const { bettors: userBets, ...bet } = currentBet;
+  const { bettors, ...bet } = currentBet;
 
-  return { bet, userBets };
+  return { bet, bettors };
 }
 
 export default async function handler(

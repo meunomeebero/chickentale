@@ -14,26 +14,40 @@ import { useQuery } from "react-query";
 type HomeProps = {
   data: {
     bet: Bets;
-    userBets: UserBets[];
+    bettors: UserBets[];
   }
 };
 
 type UserBetsResponse = {
   myBets: UserBets[];
-  myMoney: number;
 };
 
 type BetsResponse = {
   bet: Bets;
-  userBets: UserBets[];
+  bettors: UserBets[];
 };
 
 export default function Home({ data: serverSideData }: HomeProps) {
   const [user, setUser] = useState<Users | undefined>();
   const [token, setToken] = useState<string | undefined>();
 
+  const { data: myMoney = 0} = useQuery('myMoney', async () => {
+    if (!token) return 0;
+    const { data } = await axios.get<number>(
+        "/api/users/balance", {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        }
+    );
+    return data;
+  });
+
+
   const { data: bets = serverSideData } = useQuery('bets', async () => {
-    const { data } = await axios.get<BetsResponse>("/api/bets");
+    const { data } = await axios.get<BetsResponse>(
+        "/api/bets"
+    );
     return data;
   });
 
@@ -58,7 +72,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
   const [c1, c2] = useMemo(() => {
     let chicken1 = 0
     let chicken2 = 0
-    bets.userBets.forEach(ub => {
+    bets.bettors.forEach(ub => {
       if (ub.value === 1) return chicken1++
       chicken2++
     })
@@ -120,7 +134,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
       <main>
         <div className={styles.container}>
           <Login handleLogin={handleLogin} user={user}/>
-          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={?? 0}/>}
+          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={myMoney}/>}
           <h1>ChickenTale</h1>
           <strong>
             { bets.bet.state === BetState.FINISHED ? (
