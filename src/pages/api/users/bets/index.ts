@@ -8,56 +8,23 @@ import { BetState } from "@prisma/client";
 type CreateBetParams = { token?: string, value: number, times: number };
 
 export const getBet = async (token: string | undefined) => {
-    const user = await getUserByToken(token);
+    const me = await getUserByToken(token);
 
-    const bet = await prisma.bets.findFirst({
+    const myBets = await prisma.userBets.findMany({
         where: {
-            NOT: {
-                state: BetState.FINISHED,
-            }
-        },
-    });
-
-    const myCurrentBets = await prisma.userBets.findMany({
-        where: {
-            betId: bet?.id ?? -1,
-            userId: user.id,
-            isPaymentConfirmed: true,
+            userId: me.id,
         }
-    });
-
-    const allMyBets = await prisma.userBets.findMany({
-        where: {
-            userId: user.id,
-            isWithdrawn: false,
-            isPaymentConfirmed: true,
-        }
-    });
-
-    const myWinningBets = await prisma.$transaction(
-        allMyBets.map(mb => 
-            prisma.bets.findFirst({
-                where: {
-                    id: mb.betId,
-                    state: BetState.FINISHED,
-                    winner: mb.value,
-                }
-            })
-        ),
-    );
-
-    const myMoney = myWinningBets.filter(Boolean).length
-
-    return { myBets: myCurrentBets, myMoney };
+    })
+    return { myBets };
 }
 
-export const createBet = async ({ token, value, times }: CreateBetParams) => {
+export const createBet = async ({ token, value }: CreateBetParams) => {
     const user = await getUserByToken(token);
 
     const bet = await prisma.bets.findFirst({
         where: {
            NOT: {
-            state: BetState.FINISHED,
+            state: BetState.CLOSE,
            }
         },
     });
@@ -66,22 +33,18 @@ export const createBet = async ({ token, value, times }: CreateBetParams) => {
         throw new HTTPError({ message: "bet not found", code: 404 });
     }
 
-    const promises = Array(times).fill(0).map(() => {
-        return prisma.userBets.create({
-            data: {
-                betId: bet.id,
-                userId: user.id,
-                value,
-            },
-        });
+    await prisma.userBets.create({
+        data: {
+            betId: bet.id,
+            userId: user.id,
+            value,
+        },
     });
 
     const paymentLink = await createPaymentLink(
-        user, 
+        user,
         JSON.stringify({ value, times: 1, token })
     );
-
-    await Promise.all(promises);
 
     return { paymentLink };
 }
@@ -91,8 +54,8 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   try {
-    const token = req.headers.authorization?.split(' ')[1]; 
-    
+    const token = req.headers.authorization?.split(' ')[1];
+
     switch (req.method) {
         case "GET":
             const data = await getBet(token)

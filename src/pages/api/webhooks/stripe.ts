@@ -49,7 +49,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
         case 'payment_intent.succeeded':
           const checkoutSession = event.data.object;
           const customer = checkoutSession.customer?.toString();
-          
+
           if (typeof customer === "string") {
             const user = await prisma.users.findFirst({
               where: {
@@ -73,7 +73,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
               where: {
                 userId: user.id,
                 betId: bet.id,
-                isPaymentConfirmed: false, 
+                isPaymentConfirmed: false,
               },
             });
 
