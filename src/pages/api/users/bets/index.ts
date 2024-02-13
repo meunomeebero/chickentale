@@ -8,25 +8,14 @@ import { BetState } from "@prisma/client";
 type CreateBetParams = { token?: string, value: number, times: number };
 
 export const getBet = async (token: string | undefined) => {
-    const user = await getUserByToken(token);
+    const me = await getUserByToken(token);
 
-    const bet = await prisma.bets.findFirst({
+    const myBets = await prisma.userBets.findMany({
         where: {
-            NOT: {
-                state: BetState.FINISHED,
-            }
-        },
-    });
-
-    const myCurrentBets = await prisma.userBets.findMany({
-        where: {
-            betId: bet?.id ?? -1,
-            userId: user.id,
-            isPaymentConfirmed: true,
+            userId: me.id,
         }
-    });
-
-    return { myBets: myCurrentBets };
+    })
+    return { myBets };
 }
 
 export const createBet = async ({ token, value }: CreateBetParams) => {
@@ -35,7 +24,7 @@ export const createBet = async ({ token, value }: CreateBetParams) => {
     const bet = await prisma.bets.findFirst({
         where: {
            NOT: {
-            state: BetState.FINISHED,
+            state: BetState.CLOSE,
            }
         },
     });

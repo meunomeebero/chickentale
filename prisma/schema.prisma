@@ -2,58 +2,53 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
 enum BetState {
-  FINISHED
-  FIGHTING
-  WAITING
+    OPEN
+    CLOSE
 }
 model Users {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-  image String
-  createdAt DateTime @default(now()) @map("created_at")
-  paymentClientId String? @unique @map("payment_client_id")
+    id Int @id @default(autoincrement())
+    name String
+    email String @unique
+    image String
+    paymentClientId String? @unique @map("payment_client_id")
+    createdAt DateTime @default(now()) @map("created_at")
 
-  myBets  UserBets[]
+    myBets  UserBets[]
 
-  @@map("users")
+    @@map("users")
 }
 
 model Bets {
-  id Int @id @default(autoincrement())
-  createdAt   DateTime  @default(now()) @map("created_at")
-  finishAt    DateTime? @map("finish_at")
-  state       BetState @default(WAITING)
-  winner      Int
-  price       Int      @default(5)
+    id Int @id @default(autoincrement())
+    createdAt   DateTime  @default(now()) @map("created_at")
+    finishAt    DateTime? @map("finish_at")
+    state       BetState
+    bettors     UserBets[]
 
-  bettors     UserBets[]
-
-  @@unique([id, winner])
-  @@map("bets")
+    @@map("bets")
 }
 
 model UserBets {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now()) @map("created_at")
-  userId    Int @map("user_id")
-  betId     Int @map("bet_id")
-  value     Int
-  isWithdrawn  Boolean @default(false) @map("is_withdrawn")
-  isPaymentConfirmed  Boolean @default(false) @map("is_payment_confirmed")
+    id Int @id @default(autoincrement())
+    userId    Int @map("user_id")
+    betId     Int @map("bet_id")
+    value     Int
+    isWithdrawn  Boolean @default(false) @map("is_withdrawn")
+    isPaymentConfirmed  Boolean @default(false) @map("is_payment_confirmed")
+    createdAt DateTime @default(now()) @map("created_at")
 
 
-  bet Bets @relation(fields: [betId], references: [id])
-  user Users @relation(fields: [userId], references: [id])
-  
-  @@map("user_bets")
+    bet Bets @relation(fields: [betId], references: [id])
+    user Users @relation(fields: [userId], references: [id])
+
+    @@map("user_bets")
 }

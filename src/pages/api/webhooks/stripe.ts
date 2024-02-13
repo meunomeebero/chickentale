@@ -27,7 +27,7 @@ const relevantEvents = new Set([
   'payment_intent.succeeded',
 ]);
 
-const endpointSecret = process.env.STRIPE_WH_SEC as string;
+const endpointSecret = process.env.STRIPE_WEBHOOK_SEC as string;
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
   const buf = await buffer(request);

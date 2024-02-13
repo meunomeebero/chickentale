@@ -143,7 +143,7 @@ export default function Home({ data: serverSideData }: HomeProps) {
           </strong>
           <div className={styles.cage}>
               { bets.bet.state === BetState.FIGHTING ? (
-                <img src="/smoke.gif" alt="smoke" className={styles.smoke}/>
+                <img src="/fight.gif" alt="smoke" className={styles.smoke}/>
               ): bets.bet.state === BetState.WAITING ? (
                 <>
                   <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOne}/>
