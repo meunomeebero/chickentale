@@ -14,12 +14,24 @@ enum BetState {
     OPEN
     CLOSE
 }
+
+enum UserBetState {
+    WON
+    LOST
+}
+
+enum UserBetTicketState {
+    PENDING
+    PAYED
+    FAILED
+}
+
 model Users {
     id Int @id @default(autoincrement())
+    paymentClientId String? @unique @map("payment_client_id")
     name String
     email String @unique
     image String
-    paymentClientId String? @unique @map("payment_client_id")
     createdAt DateTime @default(now()) @map("created_at")
 
     myBets  UserBets[]
@@ -33,19 +45,24 @@ model Bets {
     finishAt    DateTime? @map("finish_at")
     state       BetState
     bettors     UserBets[]
-
+ 
     @@map("bets")
+}
+
+model UserBetTickets {
+    id Int @id @default(autoincrement())
+    state   UserBetTicketState @default(PENDING)
+    createdAt DateTime @default(now()) @map("created_at")
 }
 
 model UserBets {
     id Int @id @default(autoincrement())
     userId    Int @map("user_id")
     betId     Int @map("bet_id")
+    betTicketId Int @map("bet_ticket_id")
     value     Int
-    isWithdrawn  Boolean @default(false) @map("is_withdrawn")
-    isPaymentConfirmed  Boolean @default(false) @map("is_payment_confirmed")
+    state     UserBetState
     createdAt DateTime @default(now()) @map("created_at")
-
 
     bet Bets @relation(fields: [betId], references: [id])
     user Users @relation(fields: [userId], references: [id])

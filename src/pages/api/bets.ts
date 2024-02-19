@@ -2,13 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "./_prisma";
 import { HTTPError, handleHTTPError } from "./_error";
 
-export const getBet = async  () => {
+export const getBet = async () => {
   const currentBet = await prisma.bets.findFirst({
     orderBy: {
       createdAt: "desc",
     },
     include: {
-        bettors: true,
+      bettors: true,
     }
   });
 
