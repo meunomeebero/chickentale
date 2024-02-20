@@ -1,6 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "./_prisma";
 import { HTTPError, handleHTTPError } from "./_error";
+import { BetState, Bets, UserBetState, UserBetValue } from "@prisma/client";
+
+export type GetBetDataResponse = {
+    bet: Bets;
+    bettors: Array<{
+        state: UserBetState;
+        value: UserBetValue;
+    }>
+}
 
 export const getBet = async () => {
   const currentBet = await prisma.bets.findFirst({
@@ -8,7 +17,12 @@ export const getBet = async () => {
       createdAt: "desc",
     },
     include: {
-      bettors: true,
+      bettors: {
+        select: {
+            value: true,
+            state: true,
+        }
+      },
     }
   });
 

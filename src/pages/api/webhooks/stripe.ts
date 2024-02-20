@@ -58,35 +58,6 @@ export default async function handler(request: NextApiRequest, response: NextApi
             });
 
             if (!user) return;
-
-            const bet = await prisma.bets.findFirst({
-              where: {
-                 NOT: {
-                  state: BetState.FINISHED,
-                 }
-              },
-            });
-
-            if (!bet) return;
-
-            const myBet = await prisma.userBets.findFirst({
-              where: {
-                userId: user.id,
-                betId: bet.id,
-                isPaymentConfirmed: false,
-              },
-            });
-
-            if (!myBet) return;
-
-            await prisma.userBets.update({
-              where: {
-                id: myBet.id,
-              },
-              data: {
-                isPaymentConfirmed: true,
-              }
-            });
           }
 
           break;

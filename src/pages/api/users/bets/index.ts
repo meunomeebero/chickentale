@@ -2,10 +2,26 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../_prisma";
 import { getUserByToken } from "../login";
 import { HTTPError, handleHTTPError } from "../../_error";
-import { createPaymentLink } from "@/utils/stripe";
-import { BetState } from "@prisma/client";
+import { BetState, UserBetState, UserBetTicketState, UserBetValue } from "@prisma/client";
+import random from "random-number-csprng";
 
-type CreateBetParams = { token?: string, value: number, times: number };
+type RandomValues = 1 | 2;
+
+type CreateBetParams = {
+    token?: string,
+    value: UserBetValue,
+};
+
+const generateRandomChicken = async (myBet: UserBetValue) => {
+   const options = {
+    '1': UserBetValue.CHICKEN_1,
+    '2': UserBetValue.CHICKEN_2,
+   };
+
+    const value = await random(1, 2) as RandomValues;
+
+    return options[value] === myBet ? UserBetState.WON : UserBetState.LOST;
+}
 
 export const getBet = async (token: string | undefined) => {
     const me = await getUserByToken(token);
@@ -14,39 +30,57 @@ export const getBet = async (token: string | undefined) => {
         where: {
             userId: me.id,
         }
-    })
+    });
     return { myBets };
 }
 
 export const createBet = async ({ token, value }: CreateBetParams) => {
-    const user = await getUserByToken(token);
+    const me = await getUserByToken(token);
+
+    const ticket = await prisma.userBetTickets.findFirst({
+        where: {
+            userId: me.id,
+            state: UserBetTicketState.PAYED,
+            bet: undefined,
+        }
+    });
+
+    if (!ticket) {
+        throw new HTTPError({
+            code: 400,
+            message: "You have no credits"
+        });
+    }
 
     const bet = await prisma.bets.findFirst({
         where: {
-           NOT: {
-            state: BetState.CLOSE,
-           }
+            state: BetState.OPEN,
         },
+        select: {
+            id: true,
+        }
     });
 
     if (!bet) {
-        throw new HTTPError({ message: "bet not found", code: 404 });
+        throw new HTTPError({
+            code: 400,
+            message: "bet is closed",
+        });
     }
 
-    await prisma.userBets.create({
+    const state = await generateRandomChicken(value);
+
+    const myBet = await prisma.userBets.create({
         data: {
+            userId: me.id,
+            value: value,
             betId: bet.id,
-            userId: user.id,
-            value,
+            betTicketId: ticket.id,
+            state: state,
         },
     });
 
-    const paymentLink = await createPaymentLink(
-        user,
-        JSON.stringify({ value, times: 1, token })
-    );
-
-    return { paymentLink };
+    return myBet;
 }
 
 export default async function handler(
@@ -61,8 +95,8 @@ export default async function handler(
             const data = await getBet(token)
             return res.status(200).json(data);
         case "POST":
-            const { value, times } = req.body;
-            const bets = await createBet({ token, times, value });
+            const { value } = req.body;
+            const bets = await createBet({ token, value });
             return res.status(201).json(bets);
         default:
             res.status(405).json({ message: "method not allowed" });

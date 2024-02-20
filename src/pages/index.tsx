@@ -1,57 +1,38 @@
 import Head from "next/head";
 import styles from "../styles/home.module.css"
 import { GetServerSideProps } from "next";
-import { getBet } from "./api/bets";
+import { GetBetDataResponse, getBet } from "./api/bets";
 import { json } from "@/utils/json";
 import { useCallback, useMemo, useState } from "react";
-import { BetState, Bets, UserBets, Users } from "@prisma/client";
-import { format } from "date-fns";
+import { BetState, Bets, UserBetState, UserBetValue, UserBets, Users } from "@prisma/client";
 import { HandleLoginReturn, Login } from "@/components/login";
 import axios from "axios";
 import { MyBets } from "@/components/my-bets";
 import { useQuery } from "react-query";
+import { BuyTicket } from "@/components/buy-ticket";
+
+enum BetFightState {
+    FIGHTING,
+    WAITING,
+    FINISHED,
+}
 
 type HomeProps = {
-  data: {
-    bet: Bets;
-    bettors: UserBets[];
-  }
+  data: GetBetDataResponse;
 };
 
 type UserBetsResponse = {
   myBets: UserBets[];
 };
 
-type BetsResponse = {
-  bet: Bets;
-  bettors: UserBets[];
-};
+export default function Home({ data: bets }: HomeProps) {
+  const [betState, setBetState] = useState(BetFightState.WAITING)
+  const [winner, setWinner] = useState<number | undefined>(undefined)
 
-export default function Home({ data: serverSideData }: HomeProps) {
   const [user, setUser] = useState<Users | undefined>();
   const [token, setToken] = useState<string | undefined>();
 
-  const { data: myMoney = 0} = useQuery('myMoney', async () => {
-    if (!token) return 0;
-    const { data } = await axios.get<number>(
-        "/api/users/balance", {
-            headers: {
-                Authorization: "Bearer " + token,
-            }
-        }
-    );
-    return data;
-  });
-
-
-  const { data: bets = serverSideData } = useQuery('bets', async () => {
-    const { data } = await axios.get<BetsResponse>(
-        "/api/bets"
-    );
-    return data;
-  });
-
-  const { refetch: refetchMyBets, data: myBetsRes} = useQuery('myBets', async () => {
+  const { refetch: refetchMyBets, data: myBets } = useQuery('myBets', async () => {
     if (token) {
       const { data: { myBets }} = await axios.get<UserBetsResponse>('/api/users/bets', {
         headers: {
@@ -59,62 +40,65 @@ export default function Home({ data: serverSideData }: HomeProps) {
         }
       });
 
-      console.log({ myBets });
-
-     return { myBets };
+      return myBets ;
     }
   });
 
-  const timeToCloseBet = useMemo(() => {
-    return format(new Date(bets.bet.finishAt as any), "HH:mm")
-  }, [bets.bet]);
+  const [
+    myBetsOnChickenOne,
+    myBetsOnChickenTwo,
+    myMoney
+  ] = useMemo(() => {
+    let c1 = 0;
+    let c2 = 0;
+    let mm = 0;
 
-  const [c1, c2] = useMemo(() => {
-    let chicken1 = 0
-    let chicken2 = 0
-    bets.bettors.forEach(ub => {
-      if (ub.value === 1) return chicken1++
-      chicken2++
-    })
-    return [chicken1, chicken2]
-  }, [bets]);
+    if (myBets) {
+        myBets.forEach(b => {
+            if (b.value === UserBetValue.CHICKEN_1) {
+                c1++
+            } else {
+                c2++
+            }
 
-  const [myBetsC1, myBetsC2] = useMemo(() => {
-    let chicken1 = 0
-    let chicken2 = 0
-    myBetsRes?.myBets?.forEach(ub => {
-      if (ub.value === 1) return chicken1++
-      chicken2++
-    })
-    return [chicken1, chicken2]
-  }, [myBetsRes]);
+            if (b.state === UserBetState.WON) {
+                mm += 9; // 5 + (80/100 * 5);
+            }
+        });
+    }
+
+    return [c1, c2, mm];
+  }, [myBets])
 
   const handleCreateBet = useCallback(async (chicken: number) => {
-    if (bets.bet.state === BetState.FINISHED) {
-      alert("A rinha ja acabou, aguarde a próxima!");
-      return;
+    try {
+        if (bets.bet.state === BetState.CLOSE) {
+            alert("A rinha ja acabou, aguarde a próxima!");
+            return;
+        }
+
+        if (!token) {
+            alert("Você precisa estar logado para fazer uma aposta!");
+            return;
+        }
+
+        if (!user) {
+            alert("Você precisa estar logado para fazer uma aposta!");
+            return;
+        }
+
+        const { data } = await axios.post('/api/users/bets', {
+            value: chicken,
+            }, {
+            headers: {
+                Authorization: "Bearer " + token,
+            },
+        });
+
+        console.log(data);
+    } catch (err) {
+        console.log(err);
     }
-
-    if (!token) {
-      alert("Você precisa estar logado para fazer uma aposta!");
-      return;
-    }
-
-    if (!user) {
-      alert("Você precisa estar logado para fazer uma aposta!");
-      return;
-    }
-
-    const { data: { paymentLink }} = await axios.post('/api/users/bets', {
-      times: 1,
-      value: chicken,
-    }, {
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    });
-
-    window.location.replace(paymentLink as string);
   }, [token, bets, user]);
 
   const handleLogin = useCallback(async ({ token, user }: HandleLoginReturn) => {
@@ -122,6 +106,43 @@ export default function Home({ data: serverSideData }: HomeProps) {
     setToken(token);
     refetchMyBets();
   }, [refetchMyBets]);
+
+  const [chickenOneWinnings, chickenTwoWinnings] = useMemo(() => {
+    let c1w = 0;
+    let c2w = 0;
+
+    bets.bettors.forEach(b => {
+        if (b.state === UserBetState.WON) {
+            if (b.value === UserBetValue.CHICKEN_1) {
+                c1w++
+            } else {
+                c2w++
+            }
+        }
+    });
+
+    return [c1w, c2w];
+  }, [bets]);
+
+  const handleBuyTickets = useCallback(async (quantity: number) => {
+    if (!token) {
+        alert("Você precisa estar logado para fazer uma aposta!");
+        return;
+    }
+
+    if (!user) {
+        alert("Você precisa estar logado para fazer uma aposta!");
+        return;
+    }
+
+    const { data } = await axios.post('/api/users/bets/tickets', { quantity }, {
+        headers: {
+            Authorization: "Bearer " + token,
+        },
+    });
+
+    window.location.replace(data.paymentLink as string);
+  }, [token, user]);
 
   return (
     <>
@@ -134,29 +155,29 @@ export default function Home({ data: serverSideData }: HomeProps) {
       <main>
         <div className={styles.container}>
           <Login handleLogin={handleLogin} user={user}/>
-          {user && <MyBets c1={myBetsC1} c2={myBetsC2} myMoney={myMoney}/>}
+          {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney}/>}
           <h1>ChickenTale</h1>
           <strong>
-            { bets.bet.state === BetState.FINISHED ? (
-              "Rinha finalizada. chicken " + bets.bet.winner + " venceu!"
-            ) : bets.bet.state === BetState.FIGHTING ? "As galinhas estão brigando!" : "Próxima briga às: " + timeToCloseBet }
+            { betState === BetFightState.FINISHED ? (
+              "Rinha finalizada. chicken " + winner + " venceu!"
+            ) : betState === BetFightState.FIGHTING ? "As galinhas estão brigando!" : "Aposte na sua galinha vencedora!" }
           </strong>
           <div className={styles.cage}>
-              { bets.bet.state === BetState.FIGHTING ? (
+              { betState === BetFightState.FIGHTING ? (
                 <img src="/fight.gif" alt="smoke" className={styles.smoke}/>
-              ): bets.bet.state === BetState.WAITING ? (
+              ): betState === BetFightState.WAITING ? (
                 <>
                   <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOne}/>
                   <img src="/galo-2.png" alt="chicken 2" className={styles.chickenTwo}/>
                 </>
               ):(
-                <img src={`/galo-${bets.bet.winner}.png`} alt="smoke" className={styles.smoke}/>
+                <img src={`/galo-${winner}.png`} alt="smoke" className={styles.smoke}/>
               )}
           </div>
           <div className={styles.buttonContainersWrapper}>
             <div className={styles.buttonContainer}>
               <p>
-                Apostas {c1}
+                Vitórias {chickenOneWinnings}
               </p>
               <button className={styles.button} onClick={() => handleCreateBet(1)} >
                 <p className={styles.buttonText}>chicken 1</p>
@@ -164,13 +185,14 @@ export default function Home({ data: serverSideData }: HomeProps) {
             </div>
             <div className={styles.buttonContainer}>
               <p>
-                Apostas {c2}
+                Vitórias {chickenTwoWinnings}
               </p>
               <button className={styles.button} onClick={() => handleCreateBet(2)} >
-              <p className={styles.buttonText}>chicken 2</p>
+                <p className={styles.buttonText}>chicken 2</p>
               </button>
             </div>
           </div>
+          <BuyTicket handleBuyTicket={handleBuyTickets}/>
         </div>
       </main>
     </>
