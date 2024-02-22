@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../_prisma";
 import { getUserByToken } from "../login";
 import { HTTPError, handleHTTPError } from "../../_error";
-import { BetState, UserBetState, UserBetTicketState, UserBetValue } from "@prisma/client";
+import { BetState, UserBetState, UserBetTicketState, UserBetTickets, UserBetValue, UserBets } from "@prisma/client";
 import random from "random-number-csprng";
 
 type RandomValues = 1 | 2;
@@ -10,6 +10,11 @@ type RandomValues = 1 | 2;
 type CreateBetParams = {
     token?: string,
     value: UserBetValue,
+};
+
+export type UserBetsResponse = {
+    myBets: UserBets[];
+    myTickets: UserBetTickets[];
 };
 
 const generateRandomChicken = async (myBet: UserBetValue) => {
@@ -26,12 +31,22 @@ const generateRandomChicken = async (myBet: UserBetValue) => {
 export const getBet = async (token: string | undefined) => {
     const me = await getUserByToken(token);
 
+    const myTickets = await prisma.userBetTickets.findMany({
+        select: {
+            bet: true,
+        },
+        where: {
+            state: UserBetTicketState.PAYED,
+            bet: undefined,
+        }
+    })
+
     const myBets = await prisma.userBets.findMany({
         where: {
             userId: me.id,
         }
     });
-    return { myBets };
+    return { myBets, myTickets };
 }
 
 export const createBet = async ({ token, value }: CreateBetParams) => {

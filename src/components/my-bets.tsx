@@ -3,10 +3,11 @@ import styles from "../styles/home.module.css";
 type MyBetsProps = {
     c1: number;
     c2: number;
+    myTickets: number;
     myMoney: number;
 }
 
-export function MyBets({ c1, c2, myMoney }: MyBetsProps) {
+export function MyBets({ c1, c2, myMoney, myTickets }: MyBetsProps) {
     return (
         <div className={styles.betsContainer}>
             <div className={styles.betsContent}>
@@ -26,12 +27,19 @@ export function MyBets({ c1, c2, myMoney }: MyBetsProps) {
                     </div>
                 </div>
             </div>
-            <div className={styles.myGains}>
-                <h1>Meus ganhos</h1>
+            <div className={styles.betsContent}>
+                <h1>Ganhos e Tickets</h1>
                 <div className={styles.myBets}>
                     <div className={styles.betC1}>
                         <strong className={styles.betText}>
-                            R$ {myMoney * 2},00
+                            Ganhos <br/>
+                            {myMoney},00 G
+                        </strong>
+                    </div>
+                    <div className={styles.betC2}>
+                        <strong className={styles.betText}>
+                            Tickets <br/>
+                            {myTickets} und
                         </strong>
                     </div>
                 </div>

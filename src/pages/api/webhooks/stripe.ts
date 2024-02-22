@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from 'stream';
 import Stripe from "stripe";
 import { prisma } from "../_prisma";
-import { BetState } from "@prisma/client";
+import { UserBetTicketState } from "@prisma/client";
 
 async function buffer(readable: Readable){
   const chunks = [];
@@ -58,6 +58,22 @@ export default async function handler(request: NextApiRequest, response: NextApi
             });
 
             if (!user) return;
+
+            const amount = (checkoutSession.amount_received / 100 / 5);
+
+            const prismaInserts = Array(amount).fill(amount).map(() =>
+                prisma.userBetTickets.create({
+                    data: {
+                        userId: user.id,
+                        paymentId: checkoutSession.id,
+                        state: UserBetTicketState.PAYED,
+                    },
+                })
+            );
+
+            await prisma.$transaction(prismaInserts);
+
+            response.json({ ok: true });
           }
 
           break;

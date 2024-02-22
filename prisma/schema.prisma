@@ -58,6 +58,7 @@ model Bets {
 model UserBetTickets {
     id Int @id @default(autoincrement())
     userId  Int     @map("user_id")
+    paymentId String
     state   UserBetTicketState @default(PENDING)
     createdAt DateTime @default(now()) @map("created_at")
 

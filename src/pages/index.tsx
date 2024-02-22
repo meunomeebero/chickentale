@@ -10,6 +10,7 @@ import axios from "axios";
 import { MyBets } from "@/components/my-bets";
 import { useQuery } from "react-query";
 import { BuyTicket } from "@/components/buy-ticket";
+import { UserBetsResponse } from "./api/users/bets";
 
 enum BetFightState {
     FIGHTING,
@@ -21,10 +22,6 @@ type HomeProps = {
   data: GetBetDataResponse;
 };
 
-type UserBetsResponse = {
-  myBets: UserBets[];
-};
-
 export default function Home({ data: bets }: HomeProps) {
   const [betState, setBetState] = useState(BetFightState.WAITING)
   const [winner, setWinner] = useState<number | undefined>(undefined)
@@ -32,15 +29,15 @@ export default function Home({ data: bets }: HomeProps) {
   const [user, setUser] = useState<Users | undefined>();
   const [token, setToken] = useState<string | undefined>();
 
-  const { refetch: refetchMyBets, data: myBets } = useQuery('myBets', async () => {
+  const { refetch: refetchMyBets, data: myData } = useQuery('myData', async () => {
     if (token) {
-      const { data: { myBets }} = await axios.get<UserBetsResponse>('/api/users/bets', {
+      const { data: { myBets, myTickets }} = await axios.get<UserBetsResponse>('/api/users/bets', {
         headers: {
           Authorization: "Bearer " + token,
         }
       });
 
-      return myBets ;
+      return { myBets, myTickets } ;
     }
   });
 
@@ -53,24 +50,26 @@ export default function Home({ data: bets }: HomeProps) {
     let c2 = 0;
     let mm = 0;
 
-    if (myBets) {
-        myBets.forEach(b => {
+    if (myData) {
+        myData.myBets.forEach(b => {
             if (b.value === UserBetValue.CHICKEN_1) {
                 c1++
             } else {
                 c2++
             }
 
-            if (b.state === UserBetState.WON) {
+            if (b.state === UserBetState.WON && !b.isWithdrawn) {
                 mm += 9; // 5 + (80/100 * 5);
             }
         });
     }
 
     return [c1, c2, mm];
-  }, [myBets])
+  }, [myData])
 
   const handleCreateBet = useCallback(async (chicken: number) => {
+    setBetState(BetFightState.FIGHTING);
+
     try {
         if (bets.bet.state === BetState.CLOSE) {
             alert("A rinha ja acabou, aguarde a próxima!");
@@ -87,15 +86,33 @@ export default function Home({ data: bets }: HomeProps) {
             return;
         }
 
-        const { data } = await axios.post('/api/users/bets', {
-            value: chicken,
+        const { data } = await axios.post<UserBets>('/api/users/bets', {
+            value: chicken === 1 ? UserBetValue.CHICKEN_1 : UserBetValue.CHICKEN_2,
             }, {
             headers: {
                 Authorization: "Bearer " + token,
             },
         });
 
-        console.log(data);
+        const getOpositeChicken = (value: UserBetValue) => {
+            if (value === UserBetValue.CHICKEN_1) return 2
+            return 1
+        }
+
+        const getChickenValue = (value: UserBetValue) => {
+            if (value === UserBetValue.CHICKEN_1) return 1
+            return 2
+        }
+
+        setTimeout(() => {
+            setWinner(
+                data.state ==  'WON'
+                ? getChickenValue(data.value)
+                : getOpositeChicken(data.value)
+            );
+
+            setBetState(BetFightState.FINISHED);
+        }, 2000)
     } catch (err) {
         console.log(err);
     }
@@ -117,6 +134,14 @@ export default function Home({ data: bets }: HomeProps) {
                 c1w++
             } else {
                 c2w++
+            }
+        }
+
+        if (b.state === UserBetState.LOST) {
+            if (b.value === UserBetValue.CHICKEN_1) {
+                c2w++
+            } else {
+                c1w++
             }
         }
     });
@@ -155,7 +180,7 @@ export default function Home({ data: bets }: HomeProps) {
       <main>
         <div className={styles.container}>
           <Login handleLogin={handleLogin} user={user}/>
-          {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney}/>}
+          {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney} myTickets={myData?.myTickets.length || 0}/>}
           <h1>ChickenTale</h1>
           <strong>
             { betState === BetFightState.FINISHED ? (
@@ -192,7 +217,7 @@ export default function Home({ data: bets }: HomeProps) {
               </button>
             </div>
           </div>
-          <BuyTicket handleBuyTicket={handleBuyTickets}/>
+          {user && <BuyTicket handleBuyTicket={handleBuyTickets}/>}
         </div>
       </main>
     </>
