@@ -31,21 +31,19 @@ const generateRandomChicken = async (myBet: UserBetValue) => {
 export const getBet = async (token: string | undefined) => {
     const me = await getUserByToken(token);
 
-    const myTickets = await prisma.userBetTickets.findMany({
-        select: {
-            bet: true,
-        },
-        where: {
-            state: UserBetTicketState.PAYED,
-            bet: undefined,
-        }
-    })
-
     const myBets = await prisma.userBets.findMany({
         where: {
             userId: me.id,
         }
     });
+
+    const myTickets = await prisma.userBetTickets.findMany({
+        where: {
+            state: UserBetTicketState.PAYED,
+            bet: null,
+        }
+    });
+
     return { myBets, myTickets };
 }
 
@@ -56,7 +54,7 @@ export const createBet = async ({ token, value }: CreateBetParams) => {
         where: {
             userId: me.id,
             state: UserBetTicketState.PAYED,
-            bet: undefined,
+            bet: null,
         }
     });
 

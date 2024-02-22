@@ -11,6 +11,8 @@ import { MyBets } from "@/components/my-bets";
 import { useQuery } from "react-query";
 import { BuyTicket } from "@/components/buy-ticket";
 import { UserBetsResponse } from "./api/users/bets";
+import { getErrorMessage } from "@/utils/get-error-message";
+import { sleep } from "@/utils/sleep";
 
 enum BetFightState {
     FIGHTING,
@@ -31,15 +33,19 @@ export default function Home({ data: bets }: HomeProps) {
 
   const { refetch: refetchMyBets, data: myData } = useQuery('myData', async () => {
     if (token) {
-      const { data: { myBets, myTickets }} = await axios.get<UserBetsResponse>('/api/users/bets', {
-        headers: {
-          Authorization: "Bearer " + token,
-        }
-      });
+      try {
+        const { data: { myBets, myTickets }} = await axios.get<UserBetsResponse>('/api/users/bets', {
+            headers: {
+              Authorization: "Bearer " + token,
+            }
+        });
 
-      return { myBets, myTickets } ;
+        return { myBets, myTickets } ;
+      } catch (err: any) {
+        alert(getErrorMessage(err));
+      }
     }
-  });
+  }, { keepPreviousData: true, refetchInterval: 1000 * 30 });
 
   const [
     myBetsOnChickenOne,
@@ -68,8 +74,6 @@ export default function Home({ data: bets }: HomeProps) {
   }, [myData])
 
   const handleCreateBet = useCallback(async (chicken: number) => {
-    setBetState(BetFightState.FIGHTING);
-
     try {
         if (bets.bet.state === BetState.CLOSE) {
             alert("A rinha ja acabou, aguarde a próxima!");
@@ -85,6 +89,13 @@ export default function Home({ data: bets }: HomeProps) {
             alert("Você precisa estar logado para fazer uma aposta!");
             return;
         }
+
+        if (!myData?.myTickets.length) {
+            alert("Você precisa comprar um ticket pra apostar!");
+            return;
+        }
+
+        setBetState(BetFightState.FIGHTING);
 
         const { data } = await axios.post<UserBets>('/api/users/bets', {
             value: chicken === 1 ? UserBetValue.CHICKEN_1 : UserBetValue.CHICKEN_2,
@@ -104,19 +115,22 @@ export default function Home({ data: bets }: HomeProps) {
             return 2
         }
 
-        setTimeout(() => {
-            setWinner(
-                data.state ==  'WON'
-                ? getChickenValue(data.value)
-                : getOpositeChicken(data.value)
-            );
+        await sleep(2000);
 
-            setBetState(BetFightState.FINISHED);
-        }, 2000)
-    } catch (err) {
-        console.log(err);
+        setWinner(
+            data.state ==  'WON'
+            ? getChickenValue(data.value)
+            : getOpositeChicken(data.value)
+        );
+
+        setBetState(BetFightState.FINISHED);
+    } catch (err: any) {
+        alert(getErrorMessage(err));
+    } finally {
+        setBetState(BetFightState.FINISHED);
+        refetchMyBets();
     }
-  }, [token, bets, user]);
+  }, [token, bets, user, myData]);
 
   const handleLogin = useCallback(async ({ token, user }: HandleLoginReturn) => {
     setUser(user);
@@ -150,23 +164,27 @@ export default function Home({ data: bets }: HomeProps) {
   }, [bets]);
 
   const handleBuyTickets = useCallback(async (quantity: number) => {
-    if (!token) {
-        alert("Você precisa estar logado para fazer uma aposta!");
-        return;
+    try {
+        if (!token) {
+            alert("Você precisa estar logado para fazer uma aposta!");
+            return;
+        }
+
+        if (!user) {
+            alert("Você precisa estar logado para fazer uma aposta!");
+            return;
+        }
+
+        const { data } = await axios.post('/api/users/bets/tickets', { quantity }, {
+            headers: {
+                Authorization: "Bearer " + token,
+            },
+        });
+
+        window.location.replace(data.paymentLink as string);
+    } catch (err: any) {
+        alert(getErrorMessage(err));
     }
-
-    if (!user) {
-        alert("Você precisa estar logado para fazer uma aposta!");
-        return;
-    }
-
-    const { data } = await axios.post('/api/users/bets/tickets', { quantity }, {
-        headers: {
-            Authorization: "Bearer " + token,
-        },
-    });
-
-    window.location.replace(data.paymentLink as string);
   }, [token, user]);
 
   return (
