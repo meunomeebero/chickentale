@@ -205,15 +205,19 @@
     justify-content: center;
     border: 5px solid #fff; /* Converted from 6px to rem */
     padding: 0.6rem; /* Converted from 5px to rem */
-    width: 19rem; /* Converted from 300px to rem */
+    width: 28rem; /* Converted from 300px to rem */
     margin: 0 0.375rem; /* Converted from 6px to rem */
     animation: float 2s ease-in-out infinite;
+}
+
+.homeText {
+    font-size: 1.5rem;
 }
 
 .mitinho {
     animation: float 2s ease-in-out infinite;
     animation-delay: 1s;
-    margin: 2rem 0;
+    margin-top: 2rem;
     width: 20rem;
     height: 20rem;
 }
@@ -259,4 +263,27 @@
 
 .homeTitle {
     font-size: 2rem;
+}
+
+/* The typing effect */
+@keyframes typing {
+    from { width: 0 }
+    to { width: 9.375rem }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+}
+
+.footerFont {
+    overflow: hidden; /* Ensures the content is not revealed until the animation */
+    border-right: .15em solid orange; /* The typwriter cursor */
+    white-space: nowrap; /* Keeps the content on a single line */
+    margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+    letter-spacing: .15em; /* Adjust as needed */
+    animation:
+        typing 2s steps(40, end),
+        blink-caret .75s step-end infinite;
 }

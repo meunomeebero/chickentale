@@ -29,6 +29,9 @@ export default function Home() {
                         <Link href="/game">
                             <img src="mitinho-ut.png" className={styles.mitinho}/>
                         </Link>
+                        <strong className={styles.footerFont}>
+                            Toque em mim =)
+                        </strong>
                     </div>
                     <footer>
                         <strong>
