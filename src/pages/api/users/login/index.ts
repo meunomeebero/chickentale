@@ -33,6 +33,21 @@ export const getUserByToken = async (token: string | undefined) => {
     });
   }
 
+  if (!dbUser.paymentClientId) {
+    const { id: paymentClientId } = await stripe.customers.create({
+        name: user.email,
+    });
+
+    dbUser = await prisma.users.update({
+        where: {
+            id: dbUser.id,
+        },
+        data: {
+            paymentClientId,
+        }
+    });
+  }
+
   return dbUser;
 }
 

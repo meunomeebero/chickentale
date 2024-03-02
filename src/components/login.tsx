@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import styles from "../styles/home.module.css"
 import axios from "axios";
 import { Users } from '@prisma/client';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 export type HandleLoginReturn = {
   user: Users;
@@ -14,15 +15,27 @@ type LoginProps = {
   user: Users | undefined;
 }
 
+export enum SessionStorage {
+    USER = '@chickentale:user',
+    TOKEN = '@chickentale:token',
+}
+
 export function Login({ handleLogin, user }: LoginProps) {
   const login = useCallback(async (res: CredentialResponse) => {
-    const { data } = await axios.post("/api/users/login", {}, {
-      headers: {
-        Authorization: "Bearer " + res.credential,
-      }
-    })
+    try {
+        const { data } = await axios.post("/api/users/login", {}, {
+            headers: {
+                Authorization: "Bearer " + res.credential,
+            }
+        });
 
-    handleLogin({ user: data, token: res.credential as string });
+        sessionStorage.setItem(SessionStorage.USER, JSON.stringify(data));
+        sessionStorage.setItem(SessionStorage.TOKEN, String(res.credential));
+
+        handleLogin({ user: data, token: res.credential as string });
+    } catch (err) {
+        alert("Erro ao realizar o login: " + getErrorMessage(err))
+    }
   }, [handleLogin]);
 
   return !user ? (
