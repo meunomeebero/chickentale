@@ -4,7 +4,7 @@ import { GetServerSideProps } from "next";
 import { GetBetDataResponse, getBet } from "./api/bets";
 import { json } from "@/utils/json";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BetState, UserBetState, UserBetValue, UserBets, Users } from "@prisma/client";
+import { BetState, Bets, UserBetState, UserBetValue, UserBets, Users } from "@prisma/client";
 import { HandleLoginReturn, Login, SessionStorage } from "@/components/login";
 import axios from "axios";
 import { MyBets } from "@/components/my-bets";
@@ -55,7 +55,7 @@ export default function Game({ data: sbets, status }: GameProps) {
         }
     }, { keepPreviousData: true, refetchInterval: 1000 * 5 });
 
-    const { data: bets = sbets } = useQuery('bets', async () => {
+    const { data: bets = sbets } = useQuery<GetBetDataResponse>('bets', async () => {
         if (token) {
             try {
                 const { data } = await axios.get('/api/bets', {
