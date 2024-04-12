@@ -4,7 +4,6 @@ import styles from "../styles/home.module.css"
 import axios from "axios";
 import { Users } from '@prisma/client';
 import { getErrorMessage } from '@/utils/get-error-message';
-import { useSessionStorage } from '@/hooks/use-session-storage';
 
 export type HandleLoginReturn = {
   user: Users;
@@ -22,8 +21,6 @@ export enum SessionStorage {
 }
 
 export function Login({ handleLogin, user }: LoginProps) {
-  const { sessionStorage } = useSessionStorage();
-
   const login = useCallback(async (res: CredentialResponse) => {
     try {
         const { data } = await axios.post("/api/users/login", {}, {

@@ -13,7 +13,7 @@ import { BuyTicket } from "@/components/buy-ticket";
 import { UserBetsResponse } from "./api/users/bets";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { sleep } from "@/utils/sleep";
-import { useSessionStorage } from "@/hooks/use-session-storage";
+import useSessionStorage from "@/hooks/use-session-storage";
 
 enum BetFightState {
     FIGHTING,
@@ -26,8 +26,9 @@ type GameProps = {
   status: '' | 'processing';
 };
 
-export default function Game({ data: bets, status }: GameProps) {
-    const { sessionStorage } = useSessionStorage();
+let sessionStorage: Storage | undefined;
+
+export default function Game({ data: sbets, status }: GameProps) {
     const [betState, setBetState] = useState(BetFightState.WAITING)
     const [winner, setWinner] = useState<number | undefined>(undefined)
 
@@ -37,21 +38,7 @@ export default function Game({ data: bets, status }: GameProps) {
         }
     }, [status]);
 
-    const [user, setUser] = useState<Users | undefined>(() => {
-        const me = sessionStorage?.getItem(SessionStorage.USER);
-
-        if (!me) return;
-
-        return JSON.parse(me);
-    });
-
-    const [token, setToken] = useState<string | undefined>(() => {
-        const tk = sessionStorage?.getItem(SessionStorage.TOKEN);
-
-        if (!tk) return;
-
-        return JSON.parse(tk);
-    });
+    const { setSession, session: { token, user } } = useSessionStorage();
 
     const { refetch: refetchMyBets, data: myData } = useQuery('myData', async () => {
         if (token) {
@@ -67,7 +54,25 @@ export default function Game({ data: bets, status }: GameProps) {
                 alert(getErrorMessage(err));
             }
         }
-    }, { keepPreviousData: true, refetchInterval: 1000 * 30 });
+    }, { keepPreviousData: true, refetchInterval: 1000 * 5 });
+
+    const { data: bets = sbets } = useQuery('bets', async () => {
+        if (token) {
+            try {
+                const { data } = await axios.get('/api/bets', {
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    }
+                });
+
+                console.log(data);
+
+                return data;
+            } catch (err: any) {
+                alert(getErrorMessage(err));
+            }
+        }
+    }, { keepPreviousData: true, refetchInterval: 1000 * 5 });
 
     const [
         myBetsOnChickenOne,
@@ -152,13 +157,12 @@ export default function Game({ data: bets, status }: GameProps) {
             setBetState(BetFightState.FINISHED);
             refetchMyBets();
         }
-    }, [token, bets, user, myData]);
+    }, [bets, token, user, myData?.myTickets.length, refetchMyBets]);
 
     const handleLogin = useCallback(async ({ token, user }: HandleLoginReturn) => {
-        setUser(user);
-        setToken(token);
+        setSession({ token, user });
         refetchMyBets();
-    }, [refetchMyBets]);
+    }, [refetchMyBets, setSession]);
 
     const [chickenOneWinnings, chickenTwoWinnings] = useMemo(() => {
         let c1w = 0;
@@ -264,11 +268,11 @@ export default function Game({ data: bets, status }: GameProps) {
     );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     let status = '';
 
-    if (params) {
-        status = params.status as string;
+    if (query.status) {
+        status = query.status as string;
     }
 
     const res = await getBet();

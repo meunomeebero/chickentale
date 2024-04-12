@@ -8,7 +8,7 @@
 
 .cage {
     width: 19rem; /* Converted from 300px to rem */
-    height: 19rem; /* Converted from 300px to rem */
+    height: 12rem; /* Converted from 300px to rem */
     border: 0.375rem solid #fff; /* Converted from 6px to rem */
     display: flex;
     align-items: flex-end;
@@ -140,9 +140,9 @@
 }
 
 .smoke {
-    margin: auto;
-    width: 12.5rem; /* Converted from 200px to rem */
-    height: 12.5rem; /* Converted from 200px to rem */
+    margin: auto auto 0 auto;
+    width: 10rem; /* Converted from 200px to rem */
+    height: 10rem; /* Converted from 200px to rem */
     animation: float 2s ease-in-out infinite;
 }
 
