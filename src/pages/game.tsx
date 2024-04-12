@@ -14,6 +14,7 @@ import { UserBetsResponse } from "./api/users/bets";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { sleep } from "@/utils/sleep";
 import useSessionStorage from "@/hooks/use-session-storage";
+import { SingleMom } from "@/components/single-mom";
 
 enum BetFightState {
     FIGHTING,
@@ -25,8 +26,6 @@ type GameProps = {
   data: GetBetDataResponse;
   status: '' | 'processing';
 };
-
-let sessionStorage: Storage | undefined;
 
 export default function Game({ data: sbets, status }: GameProps) {
     const [betState, setBetState] = useState(BetFightState.WAITING)
@@ -190,80 +189,82 @@ export default function Game({ data: sbets, status }: GameProps) {
     }, [bets]);
 
     const handleBuyTickets = useCallback(async (quantity: number) => {
-    try {
-        if (!token) {
-            alert("Você precisa estar logado para fazer uma aposta!");
-            return;
+        try {
+            if (!token) {
+                alert("Você precisa estar logado para fazer uma aposta!");
+                return;
+            }
+
+            if (!user) {
+                alert("Você precisa estar logado para fazer uma aposta!");
+                return;
+            }
+
+            const { data } = await axios.post('/api/users/bets/tickets', { quantity }, {
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            });
+
+            window.location.replace(data.paymentLink as string);
+        } catch (err: any) {
+            alert(getErrorMessage(err));
         }
-
-        if (!user) {
-            alert("Você precisa estar logado para fazer uma aposta!");
-            return;
-        }
-
-        const { data } = await axios.post('/api/users/bets/tickets', { quantity }, {
-            headers: {
-                Authorization: "Bearer " + token,
-            },
-        });
-
-        window.location.replace(data.paymentLink as string);
-    } catch (err: any) {
-        alert(getErrorMessage(err));
-    }
     }, [token, user]);
 
     return (
         <>
-        <Head>
-            <title>Chickentale</title>
-            <meta name="description" content="Galotale é uma rinha de galo virtual" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <main>
-            <div className={styles.container}>
-            <Login handleLogin={handleLogin} user={user}/>
-            {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney} myTickets={myData?.myTickets.length || 0}/>}
-            <h1>ChickenTale</h1>
-            <strong>
-                { betState === BetFightState.FINISHED ? (
-                "Rinha finalizada. chicken " + winner + " venceu!"
-                ) : betState === BetFightState.FIGHTING ? "As galinhas estão brigando!" : "Aposte na sua galinha vencedora!" }
-            </strong>
-            <div className={styles.cage}>
-                { betState === BetFightState.FIGHTING ? (
-                    <img src="/fight.gif" alt="smoke" className={styles.smoke}/>
-                ): betState === BetFightState.WAITING ? (
-                    <>
-                    <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOne}/>
-                    <img src="/galo-2.png" alt="chicken 2" className={styles.chickenTwo}/>
-                    </>
-                ):(
-                    <img src={`/galo-${winner}.png`} alt="smoke" className={styles.smoke}/>
-                )}
-            </div>
-            <div className={styles.buttonContainersWrapper}>
-                <div className={styles.buttonContainer}>
-                <p>
-                    Vitórias {chickenOneWinnings}
-                </p>
-                <button className={styles.button} onClick={() => handleCreateBet(1)} >
-                    <p className={styles.buttonText}>chicken 1</p>
-                </button>
+            <Head>
+                <title>Chickentale</title>
+                <meta name="description" content="Galotale é uma rinha de galo virtual" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <main>
+                <div className={styles.container}>
+                <Login handleLogin={handleLogin} user={user}/>
+                {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney} myTickets={myData?.myTickets.length || 0}/>}
+                <h1>ChickenTale</h1>
+                <strong>
+                    { betState === BetFightState.FINISHED ? (
+                    "Rinha finalizada. chicken " + winner + " venceu!"
+                    ) : betState === BetFightState.FIGHTING ? "As galinhas estão brigando!" : "Aposte na sua galinha vencedora!" }
+                </strong>
+                <div className={styles.cage}>
+                    { betState === BetFightState.FIGHTING ? (
+                        <img src="/fight.gif" alt="smoke" className={styles.smoke}/>
+                    ): betState === BetFightState.WAITING ? (
+                        <>
+                        <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOne}/>
+                        <img src="/galo-2.png" alt="chicken 2" className={styles.chickenTwo}/>
+                        </>
+                    ):(
+                        <img src={`/galo-${winner}.png`} alt="smoke" className={styles.smoke}/>
+                    )}
                 </div>
-                <div className={styles.buttonContainer}>
-                <p>
-                    Vitórias {chickenTwoWinnings}
-                </p>
-                <button className={styles.button} onClick={() => handleCreateBet(2)} >
-                    <p className={styles.buttonText}>chicken 2</p>
-                </button>
+                <div className={styles.buttonContainersWrapper}>
+                    <div className={styles.buttonContainer}>
+                    <p>
+                        Vitórias {chickenOneWinnings}
+                    </p>
+                    <button className={styles.button} onClick={() => handleCreateBet(1)} >
+                        <p className={styles.buttonText}>chicken 1</p>
+                    </button>
+                    </div>
+                    <div className={styles.buttonContainer}>
+                    <p>
+                        Vitórias {chickenTwoWinnings}
+                    </p>
+                    <button className={styles.button} onClick={() => handleCreateBet(2)} >
+                        <p className={styles.buttonText}>chicken 2</p>
+                    </button>
+                    </div>
                 </div>
-            </div>
-            {user && <BuyTicket handleBuyTicket={handleBuyTickets}/>}
-            </div>
-        </main>
+                {user && <BuyTicket handleBuyTicket={handleBuyTickets}/>}
+                </div>
+            </main>
+            <SingleMom position="left"/>
+            <SingleMom position="right"/>
         </>
     );
 }

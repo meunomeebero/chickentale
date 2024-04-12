@@ -287,3 +287,44 @@
         typing 2s steps(40, end),
         blink-caret .75s step-end infinite;
 }
+
+.singleMomContainerLeft {
+    position: fixed;
+    width: 15rem;
+    top: 20%;
+    bottom: 0;
+    left: 2rem;
+}
+
+.singleMomContainerRight {
+    position: fixed;
+    width: 15rem;
+    top: 20%;
+    bottom: 0;
+    right: 2rem;
+}
+
+.singleMomImage {
+    width: 15rem;
+    height: 15rem;
+}
+
+.singleMomHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+}
+
+.singleMomTitle {
+    font-size: 1rem;
+}
+
+.singleMomX {
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.flexNone {
+    flex: none;
+}
