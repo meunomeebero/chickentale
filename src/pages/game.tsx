@@ -13,6 +13,7 @@ import { BuyTicket } from "@/components/buy-ticket";
 import { UserBetsResponse } from "./api/users/bets";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { sleep } from "@/utils/sleep";
+import { useSessionStorage } from "@/hooks/use-session-storage";
 
 enum BetFightState {
     FIGHTING,
@@ -26,6 +27,7 @@ type GameProps = {
 };
 
 export default function Game({ data: bets, status }: GameProps) {
+    const { sessionStorage } = useSessionStorage();
     const [betState, setBetState] = useState(BetFightState.WAITING)
     const [winner, setWinner] = useState<number | undefined>(undefined)
 
@@ -36,7 +38,7 @@ export default function Game({ data: bets, status }: GameProps) {
     }, [status]);
 
     const [user, setUser] = useState<Users | undefined>(() => {
-        const me = sessionStorage.getItem(SessionStorage.USER);
+        const me = sessionStorage?.getItem(SessionStorage.USER);
 
         if (!me) return;
 
@@ -44,7 +46,7 @@ export default function Game({ data: bets, status }: GameProps) {
     });
 
     const [token, setToken] = useState<string | undefined>(() => {
-        const tk = sessionStorage.getItem(SessionStorage.TOKEN);
+        const tk = sessionStorage?.getItem(SessionStorage.TOKEN);
 
         if (!tk) return;
 
