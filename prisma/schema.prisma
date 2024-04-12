@@ -64,11 +64,8 @@ model UserBetTickets {
 
     bet UserBets?
     user Users @relation(fields: [userId], references: [id])
-}
 
-model UserWithdrawHistory {
-    id Int @id @default(autoincrement())
-
+    @@map("user_bet_tickets")
 }
 
 model UserBets {
