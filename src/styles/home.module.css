@@ -163,6 +163,7 @@
     color: #fff;
     height: 3.125rem; /* Converted from 50px to rem */
     outline: 0;
+    border-radius: 0;
 }
 
 .buyTicketButton {
@@ -205,19 +206,19 @@
     justify-content: center;
     border: 5px solid #fff; /* Converted from 6px to rem */
     padding: 0.6rem; /* Converted from 5px to rem */
-    width: 28rem; /* Converted from 300px to rem */
+    width: 24rem; /* Converted from 300px to rem */
     margin: 0 0.375rem; /* Converted from 6px to rem */
     animation: float 2s ease-in-out infinite;
 }
 
 .homeText {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
 }
 
 .mitinho {
     animation: float 2s ease-in-out infinite;
     animation-delay: 1s;
-    margin-top: 2rem;
+    margin-top: 1rem;
     width: 20rem;
     height: 20rem;
 }

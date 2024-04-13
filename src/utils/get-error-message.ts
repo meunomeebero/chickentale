@@ -7,6 +7,7 @@ export const getErrorMessage = (error: any) => {
         sessionStorage.removeItem(SessionStorage.TOKEN);
         sessionStorage.removeItem(SessionStorage.USER);
         window.location.reload();
+        return "Sessão finalizada"
     }
 
     return message;

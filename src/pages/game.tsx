@@ -15,6 +15,7 @@ import { getErrorMessage } from "@/utils/get-error-message";
 import { sleep } from "@/utils/sleep";
 import useSessionStorage from "@/hooks/use-session-storage";
 import { SingleMom } from "@/components/single-mom";
+import ConfettiExplosion from "react-confetti-explosion";
 
 enum BetFightState {
     FIGHTING,
@@ -27,9 +28,17 @@ type GameProps = {
   status: '' | 'processing';
 };
 
+const explosion = {
+    force: 0.8,
+    duration: 3000,
+    particleCount: 250,
+    width: 1600,
+  }
+
 export default function Game({ data: sbets, status }: GameProps) {
     const [betState, setBetState] = useState(BetFightState.WAITING)
     const [winner, setWinner] = useState<number | undefined>(undefined)
+    const [lastBetState, setLastBetState] = useState<UserBetState | undefined>();
 
     useEffect(() => {
         if(status === 'processing') {
@@ -143,6 +152,8 @@ export default function Game({ data: sbets, status }: GameProps) {
 
             await sleep(2000);
 
+            setLastBetState(data.state);
+
             setWinner(
                 data.state ==  'WON'
                 ? getChickenValue(data.value)
@@ -212,6 +223,24 @@ export default function Game({ data: sbets, status }: GameProps) {
         }
     }, [token, user]);
 
+    const [music, setMusic] = useState("/game-ost.mp3");
+
+    useEffect(() => {
+        (async () => {
+            if (betState === BetFightState.FIGHTING) {
+                setMusic("/fight-ost.mp3")
+                return;
+            }
+
+            if (lastBetState === "WON") {
+                setMusic("home-ost.mp3")
+                return;
+            }
+
+            setMusic("/game-ost.mp3")
+        })()
+    }, [betState, lastBetState]);
+
     return (
         <>
             <Head>
@@ -221,6 +250,7 @@ export default function Game({ data: sbets, status }: GameProps) {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
+                <audio src={music} autoPlay loop></audio>
                 <div className={styles.container}>
                 <Login handleLogin={handleLogin} user={user}/>
                 {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney} myTickets={myData?.myTickets.length || 0}/>}
@@ -230,6 +260,7 @@ export default function Game({ data: sbets, status }: GameProps) {
                     "Rinha finalizada. chicken " + winner + " venceu!"
                     ) : betState === BetFightState.FIGHTING ? "As galinhas estão brigando!" : "Aposte na sua galinha vencedora!" }
                 </strong>
+                {lastBetState === 'WON' && betState ===  BetFightState.FINISHED && <ConfettiExplosion {...explosion} />}
                 <div className={styles.cage}>
                     { betState === BetFightState.FIGHTING ? (
                         <img src="/fight.gif" alt="smoke" className={styles.smoke}/>

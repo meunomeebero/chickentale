@@ -12,6 +12,7 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <div>
+                <audio src="/home-ost.mp3" autoPlay loop></audio>
                 <div className={styles.homeWrapper}>
                     <header className={styles.homeHeader}>
                         <img src={`/galo-1.png`} alt="chicken" className={styles.homeHeaderChicken}/>

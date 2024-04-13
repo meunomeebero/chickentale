@@ -27,7 +27,9 @@ export function SingleMom({ position }: { position: 'left' | 'right'}) {
                 <h2 className={style.singleMomTitle}>Mães solteiras na região</h2>
                 <h2 className={style.singleMomX} onClick={onClick}>X</h2>
             </div>
-            <img alt="Mãe solteira" src="/mitinho-sensual-1.png" className={style.singleMomImage}/>
+            <a href="https://www.youtube.com/watch?v=hIa7dgZ0RoQ&t=483s" target='__blank'>
+                <img alt="Mãe solteira" src="/mitinho-sensual-1.png" className={style.singleMomImage}/>
+            </a>
         </div>
     );
 }
