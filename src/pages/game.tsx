@@ -39,6 +39,7 @@ export default function Game({ data: sbets, status }: GameProps) {
     const [betState, setBetState] = useState(BetFightState.WAITING)
     const [winner, setWinner] = useState<number | undefined>(undefined)
     const [lastBetState, setLastBetState] = useState<UserBetState | undefined>();
+    const [isDataReady, setIsDataReady] = useState(false);
 
     useEffect(() => {
         if(status === 'processing') {
@@ -57,10 +58,13 @@ export default function Game({ data: sbets, status }: GameProps) {
                     }
                 });
 
+                setIsDataReady(true);
+
                 return { myBets, myTickets } ;
             } catch (err: any) {
                 alert(getErrorMessage(err));
             }
+
         }
     }, { keepPreviousData: true, refetchInterval: 1000 * 5 });
 
@@ -278,7 +282,7 @@ export default function Game({ data: sbets, status }: GameProps) {
                     <p>
                         Vitórias {chickenOneWinnings}
                     </p>
-                    <button className={styles.button} onClick={() => handleCreateBet(1)} >
+                    <button className={styles.button} onClick={() => handleCreateBet(1)} disabled={!isDataReady}>
                         <p className={styles.buttonText}>chicken 1</p>
                     </button>
                     </div>
@@ -286,7 +290,7 @@ export default function Game({ data: sbets, status }: GameProps) {
                     <p>
                         Vitórias {chickenTwoWinnings}
                     </p>
-                    <button className={styles.button} onClick={() => handleCreateBet(2)} >
+                    <button className={styles.button} onClick={() => handleCreateBet(2)} disabled={!isDataReady}>
                         <p className={styles.buttonText}>chicken 2</p>
                     </button>
                     </div>
