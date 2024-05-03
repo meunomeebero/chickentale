@@ -130,7 +130,7 @@ export default function Game ({ data: sbets, status }: GameProps) {
         return
       }
 
-      if (myData?.myTickets.length <= 0) {
+      if ((myData?.myTickets?.length || 0) <= 0) {
         alert('Você precisa comprar um ticket pra apostar!')
         return
       }
