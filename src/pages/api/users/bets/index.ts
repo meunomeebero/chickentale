@@ -39,6 +39,7 @@ export const getBet = async (token: string | undefined) => {
 
     const myTickets = await prisma.userBetTickets.findMany({
         where: {
+            userId: me.id,
             state: UserBetTicketState.PAYED,
             bet: null,
         }
