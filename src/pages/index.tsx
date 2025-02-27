@@ -36,11 +36,6 @@ export default function Home() {
                             Toque em mim =)
                         </strong>
                     </div>
-                    <footer>
-                        <strong>
-                            G==8 - powered by Mitinho CIA - 8==D
-                        </strong>
-                    </footer>
                 </div>
             </div>
         </>

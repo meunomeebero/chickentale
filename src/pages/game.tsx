@@ -284,8 +284,8 @@ export default function Game ({ data: sbets, status }: GameProps) {
                       : betState === BetFightState.WAITING
                         ? (
                         <>
-                        <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOne}/>
-                        <img src="/galo-2.png" alt="chicken 2" className={styles.chickenTwo}/>
+                        <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOneFighting}/>
+                        <img src="/galo-1.png" alt="chicken 2" className={styles.chickenTwoFighting}/>
                         </>
                           )
                         : (

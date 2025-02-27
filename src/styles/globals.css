@@ -6,12 +6,12 @@
 }
 
 html {
-  font-size: 1.2vw;
+  font-size: 1vw;
 }
 
 @media(max-width: 1280px) {
   html {
-    font-size: 1.25vw;
+    font-size: 1.1vw;
   }
 }
 

@@ -36,6 +36,79 @@
     animation: float 2s ease-in-out infinite;
 }
 
+.chickenOneFighting {
+    width: 6.25rem; /* 100px to rem */
+    height: 6.25rem; /* 100px to rem */
+    animation: fightPrepOne 3s ease-in-out infinite;
+}
+
+.chickenTwoFighting {
+    width: 6.25rem; /* 100px to rem */
+    height: 6.25rem; /* 100px to rem */
+    transform: rotateY(180deg);
+    animation: fightPrepTwo 3s ease-in-out infinite;
+}
+
+@keyframes fightPrepOne {
+    0%, 100% {
+        transform: translateX(0) rotate(-5deg);
+    }
+    10% {
+        transform: translateX(0.5rem) rotate(0deg) translateY(0);
+    }
+    15% {
+        transform: translateX(2rem) rotate(10deg) translateY(-0.5rem);
+    }
+    20% {
+        transform: translateX(1rem) rotate(0deg) translateY(0);
+    }
+    50% {
+        transform: translateX(0.5rem) rotate(-5deg);
+    }
+    60% {
+        transform: translateX(0.2rem) rotate(-10deg) translateY(0);
+    }
+    65% {
+        transform: translateX(0.3rem) rotate(-5deg) translateY(0);
+    }
+    70% {
+        transform: translateX(0.1rem) rotate(0deg) translateY(0);
+    }
+    80% {
+        transform: translateX(0) rotate(0deg);
+    }
+}
+
+@keyframes fightPrepTwo {
+    0%, 100% {
+        transform: rotateY(180deg) translateX(0) rotate(-5deg);
+    }
+    25% {
+        transform: rotateY(180deg) translateX(0.5rem) rotate(-5deg);
+    }
+    35% {
+        transform: rotateY(180deg) translateX(0.2rem) rotate(-10deg) translateY(0);
+    }
+    40% {
+        transform: rotateY(180deg) translateX(0.3rem) rotate(-5deg) translateY(0);
+    }
+    45% {
+        transform: rotateY(180deg) translateX(0.1rem) rotate(0deg) translateY(0);
+    }
+    60% {
+        transform: rotateY(180deg) translateX(0.5rem) rotate(0deg) translateY(0);
+    }
+    65% {
+        transform: rotateY(180deg) translateX(2rem) rotate(10deg) translateY(-0.5rem);
+    }
+    70% {
+        transform: rotateY(180deg) translateX(1rem) rotate(0deg) translateY(0);
+    }
+    90% {
+        transform: rotateY(180deg) translateX(0) rotate(0deg);
+    }
+}
+
 @keyframes float {
     0%, 100% {
         transform: translateY(0);
