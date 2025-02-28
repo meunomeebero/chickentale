@@ -3,7 +3,7 @@ import styles from '../styles/home.module.css'
 import { type GetServerSideProps } from 'next'
 import { type GetBetDataResponse, getBet } from './api/bets'
 import { json } from '@/utils/json'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { BetState, UserBetState, UserBetValue, type UserBets } from '@prisma/client'
 import { type HandleLoginReturn, Login } from '@/components/login'
 import axios from 'axios'
@@ -16,6 +16,7 @@ import { sleep } from '@/utils/sleep'
 import useSessionStorage from '@/hooks/use-session-storage'
 import { SingleMom } from '@/components/single-mom'
 import ConfettiExplosion from 'react-confetti-explosion'
+import Header from '@/components/Header'
 
 enum BetFightState {
   FIGHTING,
@@ -40,6 +41,52 @@ export default function Game ({ data: sbets, status }: GameProps) {
   const [winner, setWinner] = useState<number | undefined>(undefined)
   const [lastBetState, setLastBetState] = useState<UserBetState | undefined>()
   const [isDataReady, setIsDataReady] = useState(false)
+  const [hitEffectsActive, setHitEffectsActive] = useState(false)
+  const hitTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    // Initialize audio context
+    if (typeof window !== "undefined") {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+
+    return () => {
+      // Cleanup audio context
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    }
+  }, []);
+
+  // Function to play hit sound effect
+  const playHitSound = useCallback(() => {
+    if (!audioContextRef.current) return;
+
+    const context = audioContextRef.current;
+
+    // Create oscillator for punch sound
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    // Connect nodes
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    // Setup oscillator
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(150, context.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(40, context.currentTime + 0.1);
+
+    // Setup gain (volume)
+    gainNode.gain.setValueAtTime(1, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1);
+
+    // Play sound
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.1);
+  }, []);
 
   useEffect(() => {
     if (status === 'processing') {
@@ -49,10 +96,10 @@ export default function Game ({ data: sbets, status }: GameProps) {
 
   const { setSession, session: { token, user } } = useSessionStorage()
 
-  const { refetch: refetchMyBets, data: myData } = useQuery('myData', async () => {
+  const { refetch: refetchMyBets, data: myData, isLoading: isMyDataLoading } = useQuery('myData', async () => {
     if (token) {
       try {
-        const { data: { myBets, myTickets } } = await axios.get<UserBetsResponse>('/api/users/bets', {
+        const { data: { myBets, myTickets, totalWinnings } } = await axios.get<UserBetsResponse>('/api/users/bets', {
           headers: {
             Authorization: 'Bearer ' + token
           }
@@ -60,14 +107,14 @@ export default function Game ({ data: sbets, status }: GameProps) {
 
         setIsDataReady(true)
 
-        return { myBets, myTickets }
+        return { myBets, myTickets, totalWinnings }
       } catch (err: any) {
         alert(getErrorMessage(err))
       }
     }
   }, { keepPreviousData: true, refetchInterval: 1000 * 5 })
 
-  const { data: bets = sbets } = useQuery<GetBetDataResponse>('bets', async () => {
+  const { data: bets = sbets, isLoading: isBetsLoading } = useQuery<GetBetDataResponse>('bets', async () => {
     if (token) {
       try {
         const { data } = await axios.get('/api/bets', {
@@ -85,6 +132,8 @@ export default function Game ({ data: sbets, status }: GameProps) {
     }
   }, { keepPreviousData: true, refetchInterval: 1000 * 5 })
 
+  const isLoading = isMyDataLoading || isBetsLoading || !isDataReady
+
   const [
     myBetsOnChickenOne,
     myBetsOnChickenTwo,
@@ -101,17 +150,13 @@ export default function Game ({ data: sbets, status }: GameProps) {
         } else {
           c2++
         }
-
-        if (b.state === UserBetState.WON && !b.isWithdrawn) {
-          mm += 9 // 5 + (80/100 * 5);
-        }
       })
+
+      mm = myData.totalWinnings || 0
     }
 
     return [c1, c2, mm]
   }, [myData])
-
-  console.log({myData})
 
   const handleCreateBet = useCallback(async (chicken: number) => {
     try {
@@ -138,6 +183,12 @@ export default function Game ({ data: sbets, status }: GameProps) {
       if (betState === BetFightState.FIGHTING) {
         alert('Uma luta ja está em andamento, aguarde!')
         return
+      }
+
+      // Clear any existing reset timer when starting a new bet
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
       }
 
       setBetState(BetFightState.FIGHTING)
@@ -254,21 +305,85 @@ export default function Game ({ data: sbets, status }: GameProps) {
     setMusic('/game-ost.mp3')
   }, [betState, lastBetState])
 
+  // Hit effect timer
+  useEffect(() => {
+    if (betState === BetFightState.FIGHTING) {
+      // Play hit sounds at random intervals during fight
+      const playRandomHitSounds = () => {
+        // Play hit sound
+        playHitSound();
+
+        // Activate hit effect
+        setHitEffectsActive(true);
+
+        // Turn off hit effect after a short delay
+        setTimeout(() => {
+          setHitEffectsActive(false);
+        }, 150);
+
+        // Schedule next hit effect at random time
+        hitTimerRef.current = setTimeout(
+          playRandomHitSounds,
+          Math.random() * 800 + 300
+        ); // Between 300ms and 1100ms
+      }
+
+      // Start playing hit sounds
+      playRandomHitSounds();
+
+      // Clean up timers on state change
+      return () => {
+        if (hitTimerRef.current) {
+          clearTimeout(hitTimerRef.current);
+        }
+        setHitEffectsActive(false);
+      }
+    }
+  }, [betState, playHitSound]);
+
+  // Reset to WAITING state after battle finishes
+  useEffect(() => {
+    if (betState === BetFightState.FINISHED) {
+      // Clear any existing reset timer
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+
+      // Set new timer to reset state after 10 seconds
+      resetTimerRef.current = setTimeout(() => {
+        setBetState(BetFightState.WAITING);
+      }, 10000); // 10 segundos
+    }
+
+    // Cleanup timer on unmount or state change
+    return () => {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, [betState]);
+
   return (
         <>
             <Head>
                 <title>Chickentale</title>
-                <meta name="description" content="Galotale é uma rinha de galo virtual" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="description" content="Chickentale é uma rinha de galo virtual" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
                 <audio src={music} autoPlay loop></audio>
-                <div className={styles.container}>
-                <Login handleLogin={handleLogin} user={user}/>
-                {user && <MyBets c1={myBetsOnChickenOne} c2={myBetsOnChickenTwo} myMoney={myMoney} myTickets={myData?.myTickets.length || 0}/>}
-                <h1>ChickenTale</h1>
-                <strong>
+                <div className={`${styles.container} ${betState === BetFightState.FIGHTING ? styles.screenShake : ''}`}>
+                <Header handleLogin={handleLogin} user={user} />
+                {user && <MyBets
+                  c1={myBetsOnChickenOne}
+                  c2={myBetsOnChickenTwo}
+                  myMoney={myMoney}
+                  myTickets={myData?.myTickets.length || 0}
+                  isLoading={isLoading}
+                />}
+                <h1 className={styles.gameTitle}>ChickenTale</h1>
+                <strong className={styles.gameStatus}>
                     { betState === BetFightState.FINISHED
                       ? (
                           'Rinha finalizada. chicken ' + winner + ' venceu!'
@@ -281,7 +396,7 @@ export default function Game ({ data: sbets, status }: GameProps) {
                       ? (
                         <img src="/fight.gif" alt="smoke" className={styles.smoke}/>
                         )
-                      : betState === BetFightState.WAITING
+                      : betState === BetFightState.WAITING || isLoading
                         ? (
                         <>
                         <img src="/galo-1.png" alt="chicken 1" className={styles.chickenOneFighting}/>
@@ -295,23 +410,24 @@ export default function Game ({ data: sbets, status }: GameProps) {
                 <div className={styles.buttonContainersWrapper}>
                     <div className={styles.buttonContainer}>
                     <p>
-                        Vitórias {chickenOneWinnings}
+                        {`Vitórias ${chickenOneWinnings}`}
                     </p>
-                    <button className={styles.button} onClick={async () => { await handleCreateBet(1) }} disabled={!isDataReady}>
+                    <button className={styles.button} onClick={async () => { await handleCreateBet(1) }} disabled={isLoading}>
                         <p className={styles.buttonText}>chicken 1</p>
                     </button>
                     </div>
                     <div className={styles.buttonContainer}>
                     <p>
-                        Vitórias {chickenTwoWinnings}
+                        {`Vitórias ${chickenTwoWinnings}`}
                     </p>
-                    <button className={styles.button} onClick={async () => { await handleCreateBet(2) }} disabled={!isDataReady}>
+                    <button className={styles.button} onClick={async () => { await handleCreateBet(2) }} disabled={isLoading}>
                         <p className={styles.buttonText}>chicken 2</p>
                     </button>
                     </div>
                 </div>
                 {user && <BuyTicket handleBuyTicket={handleBuyTickets}/>}
                 </div>
+                <div className={`${styles.damageFlash} ${hitEffectsActive ? styles.flashActive : ''}`}></div>
             </main>
             <SingleMom position="left"/>
             <SingleMom position="right"/>

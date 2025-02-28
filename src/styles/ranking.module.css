@@ -1,0 +1,334 @@
+@font-face {
+  font-family: 'PressStart2P';
+  src: url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes textShadow {
+  0% { text-shadow: 0.4389924193300864px 0 1px rgba(0,30,255,0.5), -0.4389924193300864px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  5% { text-shadow: 2.7928974010788217px 0 1px rgba(0,30,255,0.5), -2.7928974010788217px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  10% { text-shadow: 0.02956275843481219px 0 1px rgba(0,30,255,0.5), -0.02956275843481219px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  15% { text-shadow: 0.40218538552878136px 0 1px rgba(0,30,255,0.5), -0.40218538552878136px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  20% { text-shadow: 3.4794037899852017px 0 1px rgba(0,30,255,0.5), -3.4794037899852017px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  25% { text-shadow: 1.6125630401149584px 0 1px rgba(0,30,255,0.5), -1.6125630401149584px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  30% { text-shadow: 0.7015590085143956px 0 1px rgba(0,30,255,0.5), -0.7015590085143956px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  35% { text-shadow: 3.896914047650351px 0 1px rgba(0,30,255,0.5), -3.896914047650351px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  40% { text-shadow: 3.870905614848819px 0 1px rgba(0,30,255,0.5), -3.870905614848819px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  45% { text-shadow: 2.231056963361899px 0 1px rgba(0,30,255,0.5), -2.231056963361899px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  50% { text-shadow: 0.08084290417898504px 0 1px rgba(0,30,255,0.5), -0.08084290417898504px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  55% { text-shadow: 2.3758461067427543px 0 1px rgba(0,30,255,0.5), -2.3758461067427543px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  60% { text-shadow: 2.202193051050636px 0 1px rgba(0,30,255,0.5), -2.202193051050636px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  65% { text-shadow: 2.8638780614874975px 0 1px rgba(0,30,255,0.5), -2.8638780614874975px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  70% { text-shadow: 0.48874025155497314px 0 1px rgba(0,30,255,0.5), -0.48874025155497314px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  75% { text-shadow: 1.8948491305757957px 0 1px rgba(0,30,255,0.5), -1.8948491305757957px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  80% { text-shadow: 0.0833037308038857px 0 1px rgba(0,30,255,0.5), -0.0833037308038857px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  85% { text-shadow: 0.09769827255241735px 0 1px rgba(0,30,255,0.5), -0.09769827255241735px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  90% { text-shadow: 3.443339761481782px 0 1px rgba(0,30,255,0.5), -3.443339761481782px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  95% { text-shadow: 2.1841838852799786px 0 1px rgba(0,30,255,0.5), -2.1841838852799786px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+  100% { text-shadow: 2.6208764473832513px 0 1px rgba(0,30,255,0.5), -2.6208764473832513px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+}
+
+@keyframes flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 0.99;
+    filter: drop-shadow(0 0 1px rgba(252, 211, 77, 0.7)) drop-shadow(0 0 2px rgba(251, 191, 36, 0.5)) drop-shadow(0 0 4px rgba(252, 211, 77, 0.4));
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.4;
+    filter: none;
+  }
+}
+
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: #fff;
+  font-family: 'PressStart2P', monospace;
+  padding: 1rem;
+}
+
+.container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 1rem;
+  z-index: 11;
+}
+
+.nav {
+  padding: 0.5rem 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.navList {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navList li a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+  font-size: 0.75rem;
+}
+
+.navList li a:hover {
+  opacity: 0.7;
+}
+
+.title {
+  font-size: 2.5rem;
+  text-align: center;
+  margin: 4rem 0 2rem;
+  letter-spacing: 0.2rem;
+  color: #fff;
+}
+
+.titleGlow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.arcadeCabinet {
+  background-color: #000;
+  padding: 1rem;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.screen {
+  background-color: #000;
+  border: 6px solid #fff;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+.screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0.1;
+  animation: scanline 6s linear infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.screenContent {
+  position: relative;
+  z-index: 1;
+}
+
+.rankingTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-transform: uppercase;
+  margin: 1rem 0;
+}
+
+.rankingTable th,
+.rankingTable td {
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.rankingTable th {
+  border-bottom: 1px solid #fff;
+}
+
+.rankingTable tr:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.rankingTable tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.topPlayer {
+  font-weight: bold;
+}
+
+.playerName {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.crown {
+  font-size: 1rem;
+}
+
+.score {
+  font-weight: bold;
+  text-align: right;
+}
+
+.arcadeControls {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.backButton {
+  background: #000;
+  color: #fff;
+  border: 1px solid #fff;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: 'PressStart2P', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.backButton:hover {
+  background: #fff;
+  color: #000;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1rem;
+  animation: blink 1s infinite;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+}
+
+.noData {
+  text-align: center;
+  padding: 1rem;
+  color: #aaa;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header {
+    top: 0.5rem;
+  }
+
+  .nav {
+    padding: 0.3rem 0.5rem;
+  }
+
+  .navList {
+    gap: 0.8rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+    margin: 5rem 0 1.5rem;
+  }
+
+  .arcadeCabinet {
+    padding: 1rem;
+  }
+
+  .rankingTable th,
+  .rankingTable td {
+    padding: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .topPlayer {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .navList {
+    gap: 0.5rem;
+    font-size: 0.6rem;
+  }
+
+  .rankingTable th,
+  .rankingTable td {
+    padding: 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .backButton {
+    font-size: 0.6rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .insertCoin {
+    font-size: 0.8rem;
+  }
+}

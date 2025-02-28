@@ -5,9 +5,13 @@ type MyBetsProps = {
     c2: number;
     myTickets: number;
     myMoney: number;
+    isLoading?: boolean;
 }
 
-export function MyBets({ c1, c2, myMoney, myTickets }: MyBetsProps) {
+export function MyBets({ c1, c2, myMoney, myTickets, isLoading = false }: MyBetsProps) {
+    // Formatação dos ganhos para o formato brasileiro de moeda
+    const formattedMoney = myMoney.toFixed(2).replace('.', ',');
+
     return (
         <div className={styles.betsContainer}>
             <div className={styles.betsContent}>
@@ -16,13 +20,13 @@ export function MyBets({ c1, c2, myMoney, myTickets }: MyBetsProps) {
                     <div className={styles.betC1}>
                         <strong className={styles.betText}>
                             c1 <br/>
-                            {c1}
+                            {isLoading ? <span className={styles.loadingText}>Carregando...</span> : c1}
                         </strong>
                     </div>
                     <div className={styles.betC2}>
                         <strong className={styles.betText}>
                             c2 <br/>
-                            {c2}
+                            {isLoading ? <span className={styles.loadingText}>Carregando...</span> : c2}
                         </strong>
                     </div>
                 </div>
@@ -33,13 +37,13 @@ export function MyBets({ c1, c2, myMoney, myTickets }: MyBetsProps) {
                     <div className={styles.betC1}>
                         <strong className={styles.betText}>
                             Ganhos <br/>
-                            {myMoney},00 G
+                            {isLoading ? <span className={styles.loadingText}>Carregando...</span> : `${formattedMoney} G`}
                         </strong>
                     </div>
                     <div className={styles.betC2}>
                         <strong className={styles.betText}>
                             Tickets <br/>
-                            {myTickets} und
+                            {isLoading ? <span className={styles.loadingText}>Carregando...</span> : `${myTickets} und`}
                         </strong>
                     </div>
                 </div>

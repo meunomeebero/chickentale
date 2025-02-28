@@ -3,7 +3,41 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 9rem;
+    padding-top: 10rem;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    position: absolute;
+    top: 1rem;
+    z-index: 11;
+}
+
+.nav {
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.navList {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+}
+
+.navList li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.navList li a:hover {
+    filter: brightness(0.8);
 }
 
 .cage {
@@ -156,13 +190,14 @@
 
 .loginButtonContainer {
     right: 1rem;
-    top: 1rem;
+    top: 4rem;
     position: fixed;
     border-radius: 0.9375rem; /* Converted from 15px to rem */
+    z-index: 10;
 }
 
 .betsContainer {
-    top: 1rem;
+    top: 4rem;
     position: absolute;
     display: flex;
 }
@@ -212,6 +247,23 @@
     text-align: center;
 }
 
+.loadingText {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    font-style: italic;
+    text-align: center;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
 .smoke {
     margin: auto auto 0 auto;
     width: 10rem; /* Converted from 200px to rem */
@@ -249,6 +301,15 @@
     outline: none;
     border: none;
     transition: 0.2s;
+}
+
+.ticketPriceText {
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #fff;
+    opacity: 0.9;
 }
 
 .homeWrapper {
@@ -328,6 +389,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    z-index: 10;
 }
 
 .homeHeaderChicken {
@@ -401,4 +464,367 @@
 
 .flexNone {
     flex: none;
+}
+
+.gameTitle {
+    margin: 0;
+    padding: 0;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.gameStatus {
+    margin: 0.5rem 0;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding-top: 8.5rem;
+    }
+
+    .header {
+        width: 100%;
+        top: 0.5rem;
+        z-index: 11;
+    }
+
+    .nav {
+        padding: 0.3rem 0.5rem;
+    }
+
+    .navList {
+        gap: 0.8rem;
+    }
+
+    /* Home page elements - larger sizes for mobile */
+    .homeHeaderChicken {
+        width: 4.5rem;
+        height: 4.5rem;
+    }
+
+    .homeTitle {
+        font-size: 2rem;
+        padding: 0 0.5rem;
+    }
+
+    .mitinho {
+        width: 20rem;
+        height: 20rem;
+    }
+
+    .homeTextContainer {
+        width: 90vw;
+        max-width: 25rem;
+        padding: 1rem;
+    }
+
+    .homeText {
+        font-size: 1.2rem;
+    }
+
+    .footerFont {
+        font-size: 1.3rem;
+        margin-top: 1rem;
+    }
+
+    /* Login at the very top */
+    .loginButtonContainer {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin-bottom: 1rem;
+        order: 1;
+        width: 90vw;
+        max-width: 19rem;
+        display: flex;
+        justify-content: flex-end;
+        z-index: 10;
+    }
+
+    /* Bet boxes at the top */
+    .betsContainer {
+        position: relative;
+        top: 0;
+        order: 2;
+        margin-bottom: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        width: 90vw;
+        max-width: 19rem;
+    }
+
+    .betsContent, .myGains {
+        margin: 0;
+        width: 90vw;
+        max-width: 19rem;
+    }
+
+    /* Main content in the middle */
+    .gameTitle {
+        order: 3;
+        margin-top: 1rem;
+    }
+
+    .gameStatus {
+        order: 4;
+    }
+
+    .cage {
+        order: 5;
+        width: 90vw;
+        max-width: 19rem;
+        height: 10rem;
+        margin-top: 1rem;
+    }
+
+    .buttonContainersWrapper {
+        order: 6;
+        width: 90vw;
+        max-width: 19rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Buy ticket at the bottom */
+    .buyTicketContainer {
+        order: 7;
+        width: 90vw;
+        max-width: 19rem;
+        margin-top: 1rem;
+    }
+
+    .chickenOne, .chickenTwo, .chickenOneFighting, .chickenTwoFighting {
+        width: 5rem;
+        height: 5rem;
+    }
+
+    .button {
+        width: 5.5rem;
+    }
+
+    .singleMomContainerLeft, .singleMomContainerRight {
+        display: none;
+    }
+
+    .homeButton {
+        width: 90vw;
+        max-width: 19rem;
+    }
+
+    .smoke {
+        width: 8rem;
+        height: 8rem;
+    }
+
+    /* More home page improvements */
+    .homeHeader {
+        padding: 1.5rem 1rem;
+    }
+
+    .home {
+        padding-top: 6rem;
+    }
+
+    .homeWrapper {
+        justify-content: flex-start;
+        padding-top: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding-top: 4rem;
+    }
+
+    .header {
+        width: 90%;
+        position: fixed;
+        top: 0.5rem;
+        z-index: 11;
+    }
+
+    .navList {
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Home page elements - adjustments for very small screens */
+    .homeHeaderChicken {
+        width: 3.8rem;
+        height: 3.8rem;
+    }
+
+    .homeTitle {
+        font-size: 1.8rem;
+    }
+
+    .mitinho {
+        width: 18rem;
+        height: 18rem;
+    }
+
+    .homeTextContainer {
+        width: 90vw;
+        max-width: 22rem;
+        padding: 0.8rem;
+    }
+
+    .homeText {
+        font-size: 1.1rem;
+    }
+
+    /* Game elements */
+    .chickenOne, .chickenTwo, .chickenOneFighting, .chickenTwoFighting {
+        width: 4.5rem;
+        height: 4.5rem;
+    }
+
+    .cage {
+        height: 9rem;
+    }
+
+    .button {
+        width: 4.5rem;
+        height: 2.8rem;
+    }
+
+    .buttonText {
+        font-size: 0.9rem;
+    }
+
+    .smoke {
+        width: 7rem;
+        height: 7rem;
+    }
+
+    .buyTicketInput, .buyTicketButton {
+        height: 2.8rem;
+    }
+}
+
+@keyframes screenShake {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    10% {
+        transform: translate(-8px, -8px);
+    }
+    20% {
+        transform: translate(8px, 8px);
+    }
+    30% {
+        transform: translate(-8px, 8px);
+    }
+    40% {
+        transform: translate(8px, -8px);
+    }
+    50% {
+        transform: translate(-8px, 0);
+    }
+    60% {
+        transform: translate(8px, 0);
+    }
+    70% {
+        transform: translate(0, 8px);
+    }
+    80% {
+        transform: translate(0, -8px);
+    }
+    90% {
+        transform: translate(-3px, 3px);
+    }
+}
+
+.screenShake {
+    animation: screenShake 0.4s infinite;
+}
+
+.damageFlash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 0, 0, 0.2);
+    box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.6);
+    pointer-events: none;
+    z-index: 9;
+    animation: flashEffect 0.15s cubic-bezier(.11,.71,.53,.58);
+    display: none;
+}
+
+@keyframes flashEffect {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.flashActive {
+    display: block;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 2px solid #fff;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 19rem;
+}
+
+.loadingSpinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0.25rem solid rgba(255, 255, 255, 0.2);
+    border-top: 0.25rem solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 0.5rem;
+}
+
+.loadingChicken {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.impactEffect {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,0,0.8) 30%, rgba(255,0,0,0.6) 70%, rgba(255,0,0,0) 100%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10;
+    animation: impactAnimation 0.5s ease-out forwards;
+}
+
+@keyframes impactAnimation {
+    0% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
 }

@@ -15,6 +15,24 @@ type CreateBetParams = {
 export type UserBetsResponse = {
     myBets: UserBets[];
     myTickets: UserBetTickets[];
+    totalWinnings: number;
+};
+
+// Configuração dos parâmetros de ganhos
+const TICKET_PRICE = 1; // Preço atual do ticket no Stripe
+const WINNING_MULTIPLIER = 1.8; // Retorno de 180% (devolução do valor + 80% de lucro)
+
+// Função para calcular os ganhos totais do usuário
+const calculateUserWinnings = (userBets: UserBets[]): number => {
+    let totalWinnings = 0;
+
+    userBets.forEach(bet => {
+        if (bet.state === UserBetState.WON && !bet.isWithdrawn) {
+            totalWinnings += TICKET_PRICE * WINNING_MULTIPLIER; // Aproximadamente 3.6 por aposta ganha
+        }
+    });
+
+    return totalWinnings;
 };
 
 const generateRandomChicken = async (myBet: UserBetValue) => {
@@ -45,7 +63,10 @@ export const getBet = async (token: string | undefined) => {
         }
     });
 
-    return { myBets, myTickets };
+    // Calcular os ganhos totais disponíveis para o usuário
+    const totalWinnings = calculateUserWinnings(myBets);
+
+    return { myBets, myTickets, totalWinnings };
 }
 
 export const createBet = async ({ token, value }: CreateBetParams) => {

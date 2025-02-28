@@ -1,6 +1,6 @@
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { useCallback } from 'react';
-import styles from "../styles/home.module.css"
+import styles from "../styles/header.module.css"
 import axios from "axios";
 import { Users } from '@prisma/client';
 import { getErrorMessage } from '@/utils/get-error-message';

@@ -1,0 +1,152 @@
+@font-face {
+  font-family: 'PressStart2P';
+  src: url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.container {
+  background-color: #000;
+  color: #fff;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contentWrapper {
+  padding: 6rem 1rem 3rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.content {
+  border: 6px solid #fff;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.title {
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-family: 'PressStart2P', monospace;
+  letter-spacing: 0.1rem;
+}
+
+.lastUpdated {
+  text-align: center;
+  font-size: 0.8rem;
+  margin-bottom: 2rem;
+  opacity: 0.7;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-family: 'PressStart2P', monospace;
+  font-weight: normal;
+}
+
+.section p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.list {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.email {
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.navButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.policyButton {
+  background-color: #000;
+  color: #fff;
+  border: 3px solid #fff;
+  padding: 0.75rem 1.5rem;
+  font-family: 'PressStart2P', monospace;
+  font-size: 0.8rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.policyButton:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .contentWrapper {
+    padding-top: 5rem;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .section h2 {
+    font-size: 1rem;
+  }
+
+  .policyButton {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentWrapper {
+    padding-top: 4rem;
+  }
+
+  .content {
+    padding: 1rem;
+    border-width: 4px;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .section h2 {
+    font-size: 0.9rem;
+  }
+
+  .section p, .list li {
+    font-size: 0.9rem;
+  }
+
+  .policyButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.65rem;
+    border-width: 2px;
+  }
+}
