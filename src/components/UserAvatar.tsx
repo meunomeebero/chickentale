@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from '../styles/header.module.css';
 import { Users } from '@prisma/client';
+import Image from 'next/image';
 
 interface UserAvatarProps {
   user: Users;

@@ -1,0 +1,16 @@
+.container {
+  // ... existing code ...
+}
+
+/* Adicionando regra para mobile */
+@media (max-width: 768px) {
+  .container {
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+}
